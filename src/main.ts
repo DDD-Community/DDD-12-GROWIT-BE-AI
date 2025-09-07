@@ -14,12 +14,12 @@ async function bootstrap() {
   });
 
   // Global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
 
   const port = configService.get('app.port');
   await app.listen(port);
 
-  console.log(`🚀 Application is running on: http://localhost:${port}/api/v1`);
+  console.log(`🚀 Application is running on: http://localhost:${port}/api`);
 }
 
 bootstrap();

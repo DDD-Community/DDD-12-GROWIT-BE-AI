@@ -8,7 +8,7 @@ export enum AiStatus {
   MAINTENANCE = 'MAINTENANCE',
 }
 
-@Entity('ais')
+@Entity('ai')
 @Index(['status'])
 @Index(['roleId'])
 export class AiEntity extends CommonEntity {

@@ -8,28 +8,25 @@ import { appConfig } from './common/config/app.config';
 
 // Modules
 import { AiModule } from './ai/ai.module';
+import { AiEntityModule } from './ai/infrastructure/persistence/ai-entitiy.module';
 
 @Module({
   imports: [
-    // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],
       envFilePath: [
-        `.env.${process.env.NODE_ENV || 'development'}.local`,
-        `.env.${process.env.NODE_ENV || 'development'}`,
-        '.env.local',
         '.env',
       ],
     }),
 
-    // Database
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) =>
         configService.get('database'),
       inject: [ConfigService],
     }),
+    AiEntityModule,
     AiModule,
   ],
   controllers: [],
