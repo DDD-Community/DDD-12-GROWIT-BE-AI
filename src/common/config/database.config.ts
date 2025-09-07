@@ -9,10 +9,7 @@ export const databaseConfig = registerAs('database', () => ({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [
-    AiEntity,
-    AiRoleEntity,
-  ],
+  entities: [AiEntity, AiRoleEntity],
   synchronize: true, // 개발환경에서만 true
   logging: process.env.NODE_ENV === 'development',
 }));

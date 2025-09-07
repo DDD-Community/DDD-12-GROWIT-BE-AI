@@ -15,9 +15,7 @@ import { AiEntityModule } from './ai/infrastructure/persistence/ai-entitiy.modul
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, appConfig],
-      envFilePath: [
-        '.env',
-      ],
+      envFilePath: ['.env'],
     }),
 
     TypeOrmModule.forRootAsync({

@@ -1,5 +1,4 @@
 export class AiRole {
-
   private constructor(
     public readonly id: string,
     public readonly name: string,
@@ -7,8 +6,5 @@ export class AiRole {
     public readonly command: string,
     public readonly capabilities: readonly string[],
     public readonly isActive: boolean = true,
-    public readonly createdAt: Date = new Date(),
-    public readonly updatedAt: Date = new Date(),
   ) {}
-
 }
