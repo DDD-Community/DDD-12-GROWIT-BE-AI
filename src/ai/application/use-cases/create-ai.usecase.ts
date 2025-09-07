@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+
 @Injectable()
-export class AiService {
+export class CreateAiUseCase {
   constructor() {}
+
+  async execute(userId: string) {}
 }
