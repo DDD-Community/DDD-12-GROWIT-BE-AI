@@ -198,3 +198,5 @@ coverage/
 
 # Prettier
 .prettiercache
+.env
+.env
