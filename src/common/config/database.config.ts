@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
-import { AiEntity } from '../../ai/infrastructure/persistence/entities/ai.entity';
-import { AiRoleEntity } from '../../ai/infrastructure/persistence/entities/ai-role.entity';
+import { AiEntity } from '@/ai/infrastructure/persistence/entities/ai.entity';
+import { AiRoleEntity } from '@/ai/infrastructure/persistence/entities/ai-role.entity';
 
 export const databaseConfig = registerAs('database', () => ({
   type: 'postgres',
