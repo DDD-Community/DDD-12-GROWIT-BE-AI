@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:check": "node -e \"require('dotenv').config(); const { Client } = require('pg'); const client = new Client({ host: process.env.DB_HOST, port: process.env.DB_PORT, user: process.env.DB_USERNAME, password: process.env.DB_PASSWORD, database: process.env.DB_NAME }); client.connect().then(() => { console.log('✅ PostgreSQL 연결 성공!'); client.end(); }).catch(err => { console.error('❌ PostgreSQL 연결 실패:', err.message); process.exit(1); });\""
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
