@@ -4,5 +4,8 @@ import { Injectable } from '@nestjs/common';
 export class CreateAiUseCase {
   constructor() {}
 
-  async execute(userId: string) {}
+  async execute(_userId: string) {
+    // TODO: AI 생성 로직 구현
+    return {};
+  }
 }

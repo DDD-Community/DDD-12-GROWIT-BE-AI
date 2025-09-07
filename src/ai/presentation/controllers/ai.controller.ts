@@ -1,7 +1,7 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import { CreateAiUseCase } from '../../application/use-cases/create-ai.usecase';
+import { Controller, Post, UseGuards } from '@nestjs/common';
 import { User, UserPayload } from '../../../common/decorators/user.decorator';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CreateAiUseCase } from '../../application/use-cases/create-ai.usecase';
 
 @Controller('ai')
 @UseGuards(JwtAuthGuard)
