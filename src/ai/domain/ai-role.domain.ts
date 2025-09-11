@@ -1,14 +1,12 @@
-export class AiRole {
+import { 멘토직업, 멘토성격 } from './vo/mentor';
 
+export class AiRole {
   private constructor(
     public readonly id: string,
-    public readonly name: string,
     public readonly personality: string,
     public readonly command: string,
-    public readonly capabilities: readonly string[],
+    public readonly mentorCategory: 멘토직업,
+    public readonly mentorPersonality: 멘토성격,
     public readonly isActive: boolean = true,
-    public readonly createdAt: Date = new Date(),
-    public readonly updatedAt: Date = new Date(),
   ) {}
-
 }

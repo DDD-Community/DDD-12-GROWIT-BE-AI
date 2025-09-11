@@ -5,33 +5,24 @@ import { AiRoleEntity } from './ai-role.entity';
 export enum AiStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-  MAINTENANCE = 'MAINTENANCE',
 }
 
 @Entity('ai')
-@Index(['status'])
-@Index(['roleId'])
+@Index(['role'])
 export class AiEntity extends CommonEntity {
   @Column({ type: 'text', nullable: false })
   summary: string;
 
-  @Column({ 
-    type: 'enum', 
-    enum: AiStatus, 
-    default: AiStatus.ACTIVE 
-  })
-  status: AiStatus;
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  displayName?: string;
 
-  @Column({ type: 'int', nullable: false })
-  roleId: number;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
-  @ManyToOne(() => AiRoleEntity, (role) => role.ais, { 
+  @ManyToOne(() => AiRoleEntity, (role) => role.ai, {
     onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'roleId' })
   role: AiRoleEntity;
-
-  @Column({ type: 'json', nullable: true, default: null })
-  metadata: Record<string, any>;
 }

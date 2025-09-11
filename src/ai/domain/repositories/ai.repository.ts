@@ -1,5 +1,5 @@
-import { Ai, AiStatus } from '../ai.domain';
+import { Ai } from '../ai.domain';
 
 export interface AiRepository {
-  create(ai: Ai): Promise<Ai>;
+  save(ai: Ai): Promise<Ai>;
 }
