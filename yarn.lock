@@ -5981,6 +5981,11 @@ ts-node@^10.9.1:
     v8-compile-cache-lib "^3.0.1"
     yn "3.1.1"
 
+ts-pattern@^5.8.0:
+  version "5.8.0"
+  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.8.0.tgz#1bf2dcdc58ae96ac7b64e59c9515d7ce1bf0ff19"
+  integrity sha512-kIjN2qmWiHnhgr5DAkAafF9fwb0T5OhMVSWrm8XEdTFnX6+wfXwYOFjeF86UZ54vduqiR7BfqScFmXSzSaH8oA==
+
 tsconfig-paths-webpack-plugin@4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/tsconfig-paths-webpack-plugin/-/tsconfig-paths-webpack-plugin-4.2.0.tgz#f7459a8ed1dd4cf66ad787aefc3d37fff3cf07fc"
