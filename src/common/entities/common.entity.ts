@@ -1,18 +1,15 @@
 import {
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Column,
   BeforeInsert,
+  Column,
+  CreateDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { nanoid } from 'nanoid';
+import { KeyUtils } from '../utils/key.util';
 
-export class CommonEntity {
+export abstract class CommonEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
-
-  @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
-  uuid: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -27,10 +24,11 @@ export class CommonEntity {
   })
   updatedAt: Date;
 
+  @Column({ name: 'uuid', unique: true, nullable: true })
+  uid?: string;
+
   @BeforeInsert()
   generateUuid(): void {
-    if (!this.uuid) {
-      this.uuid = nanoid();
-    }
+    if (!this.uid) this.uid = KeyUtils.generate();
   }
 }

@@ -3,12 +3,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Config
-import { databaseConfig } from './common/config/database.config';
 import { appConfig } from './common/config/app.config';
+import { databaseConfig } from './common/config/database.config';
 
 // Modules
+import { AdviceModule } from './advice/advice.module';
 import { AiModule } from './ai/ai.module';
 import { AiEntityModule } from './ai/infrastructure/persistence/ai-entitiy.module';
+import { GoalModule } from './goal/goal.module';
+import { RetrospectModule } from './retrospect/retrospect.module';
+import { TodoModule } from './todo/todo.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -26,6 +31,11 @@ import { AiEntityModule } from './ai/infrastructure/persistence/ai-entitiy.modul
     }),
     AiEntityModule,
     AiModule,
+    AdviceModule,
+    GoalModule,
+    RetrospectModule,
+    TodoModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],
