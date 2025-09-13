@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import 'reflect-metadata';
 
 import { AppModule } from './app.module';
 
