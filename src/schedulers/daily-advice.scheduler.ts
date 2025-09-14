@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { AdviceGeneratorService } from '../ai/services/advice-generator.service';
-import { SpringClientService } from '../external/spring-client.service';
+import { BatchAdviceUseCase } from '../ai/application/use-cases/batch-advice.use-case';
 
 @Injectable()
 export class DailyAdviceScheduler {
@@ -10,8 +9,7 @@ export class DailyAdviceScheduler {
   private readonly isSchedulerEnabled: boolean;
 
   constructor(
-    private readonly springClientService: SpringClientService,
-    private readonly adviceGeneratorService: AdviceGeneratorService,
+    private readonly batchAdviceUseCase: BatchAdviceUseCase,
     private readonly configService: ConfigService,
   ) {
     this.isSchedulerEnabled = this.configService.get<boolean>(
@@ -32,56 +30,17 @@ export class DailyAdviceScheduler {
     try {
       this.logger.log('Starting daily advice generation...');
 
-      const activeUsers = await this.springClientService.getActiveUsers();
-      if (activeUsers.length === 0) {
-        this.logger.log('No active users found for daily advice generation');
-        return;
-      }
+      const result = await this.batchAdviceUseCase.executeForActiveUsers();
 
       this.logger.log(
-        `Processing daily advice for ${activeUsers.length} active users`,
+        `Daily advice generation completed. Success: ${result.successCount}/${result.totalUsers}, ` +
+          `Failures: ${result.failureCount}, Total time: ${result.totalExecutionTime}ms`,
       );
 
-      let successCount = 0;
-      const errors: string[] = [];
-
-      for (const userData of activeUsers) {
-        try {
-          const advice = await this.adviceGeneratorService.generateAdvice(
-            userData.mentorType,
-            userData.recentTodos,
-            userData.weeklyRetrospects,
-            userData.intimacyLevel,
-          );
-
-          const saved = await this.springClientService.saveAdvice(
-            userData.userId,
-            advice,
-            userData.mentorType,
-          );
-
-          if (saved) {
-            successCount++;
-            this.logger.debug(
-              `Generated and saved advice for user ${userData.userId}`,
-            );
-          } else {
-            const error = `Failed to save advice for user ${userData.userId}`;
-            errors.push(error);
-            this.logger.warn(error);
-          }
-        } catch (error) {
-          const errorMessage = `Failed to process advice for user ${userData.userId}: ${error.message}`;
-          errors.push(errorMessage);
-          this.logger.error(errorMessage);
-        }
-      }
-
-      this.logger.log(
-        `Daily advice generation completed. Success: ${successCount}/${activeUsers.length}, Errors: ${errors.length}`,
-      );
-
-      if (errors.length > 0) {
+      if (result.failureCount > 0) {
+        const errors = result.results
+          .filter((r) => !r.success)
+          .map((r) => `User ${r.userId}: ${r.error}`);
         this.logger.error('Daily advice generation errors:', errors);
       }
     } catch (error) {

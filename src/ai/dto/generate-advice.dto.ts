@@ -1,12 +1,12 @@
 import {
-  IsEnum,
-  IsString,
   IsArray,
-  IsDate,
   IsBoolean,
+  IsDate,
+  IsEnum,
   IsOptional,
+  IsString,
 } from 'class-validator';
-import { MentorType, IntimacyLevel } from '../../common/enums';
+import { IntimacyLevel, MentorType } from '../../common/enums';
 
 export class GenerateAdviceRequestDto {
   @IsEnum(MentorType)
@@ -22,6 +22,9 @@ export class GenerateAdviceRequestDto {
   @IsArray()
   @IsString({ each: true })
   weeklyRetrospects: string[];
+
+  @IsString()
+  overallGoal: string;
 
   @IsEnum(IntimacyLevel)
   intimacyLevel: IntimacyLevel;
