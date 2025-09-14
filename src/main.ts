@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import 'reflect-metadata';
 
 import { AppModule } from './app.module';
 
@@ -17,7 +17,7 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
 
-  const port = configService.get('app.port');
+  const port = configService.get('PORT') || 8001;
   await app.listen(port);
 
   console.log(`🚀 Application is running on: http://localhost:${port}/api`);

@@ -1,0 +1,57 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { IntimacyLevel, MentorType } from '../../common/enums';
+import { OpenAIService } from './openai.service';
+import { PromptTemplateService } from './prompt-template.service';
+
+@Injectable()
+export class GoalRecommenderService {
+  private readonly logger = new Logger(GoalRecommenderService.name);
+
+  constructor(
+    private readonly openaiService: OpenAIService,
+    private readonly promptTemplateService: PromptTemplateService,
+  ) {}
+
+  async recommendGoal(
+    mentorType: MentorType,
+    pastTodos: string[],
+    pastRetrospects: string[],
+    overallGoal: string,
+    intimacyLevel: IntimacyLevel,
+  ): Promise<string> {
+    try {
+      const prompt = this.promptTemplateService.generateGoalPrompt(
+        mentorType,
+        pastTodos,
+        pastRetrospects,
+        overallGoal,
+        intimacyLevel,
+      );
+
+      const goal = await this.openaiService.generateGoal(prompt);
+      this.logger.log(`Generated goal for mentor ${mentorType}: ${goal}`);
+
+      return goal;
+    } catch (error) {
+      this.logger.error(
+        `Failed to generate goal for mentor ${mentorType}:`,
+        error.message,
+      );
+
+      const fallbackGoal = this.getDefaultGoal(mentorType);
+      this.logger.warn(`Using fallback goal: ${fallbackGoal}`);
+
+      return fallbackGoal;
+    }
+  }
+
+  private getDefaultGoal(mentorType: MentorType): string {
+    const defaultGoals = {
+      [MentorType.팀쿡]: '이번 주 프로젝트 진행하기',
+      [MentorType.공자]: '이번 주 꾸준히 학습하기',
+      [MentorType.워렌버핏]: '이번 주 투자 공부하기',
+    };
+
+    return defaultGoals[mentorType];
+  }
+}

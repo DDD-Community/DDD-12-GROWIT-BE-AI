@@ -15,7 +15,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "batch": "ts-node scripts/batch-test.ts",
+    "batch:eventbridge": "ts-node scripts/eventbridge-test.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -32,6 +34,9 @@
     "dotenv": "^17.2.2",
     "nanoid": "^5.1.5",
     "openai": "^4.20.1",
+    "@nestjs/schedule": "^4.0.0",
+    "@nestjs/axios": "^3.0.0",
+    "axios": "^1.6.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
@@ -66,7 +71,7 @@
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.1",
+    "tsconfig-paths": "^4.1.0",
     "typescript": "^5.1.3"
   },
   "jest": {
