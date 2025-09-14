@@ -18,12 +18,6 @@ export class GetIntimacyResponseDto {
   @IsString()
   description: string;
 
-  @IsNumber()
-  totalTodos: number;
-
-  @IsNumber()
-  weeklyRetrospects: number;
-
   @IsDate()
   calculatedAt: Date;
 

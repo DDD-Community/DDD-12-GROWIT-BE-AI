@@ -27,8 +27,6 @@ export class IntimacyController {
           success: false,
           intimacyLevel: IntimacyLevel.MEDIUM,
           description: '기본 상태 (디폴트)',
-          totalTodos: 0,
-          weeklyRetrospects: 0,
           calculatedAt: new Date(),
           error: 'Invalid or missing Authorization header',
         };
@@ -47,8 +45,6 @@ export class IntimacyController {
           success: false,
           intimacyLevel: IntimacyLevel.MEDIUM,
           description: '기본 상태 (디폴트)',
-          totalTodos: 0,
-          weeklyRetrospects: 0,
           calculatedAt: new Date(),
           error: '사용자 정보를 조회할 수 없습니다',
         };
@@ -70,8 +66,6 @@ export class IntimacyController {
         success: true,
         intimacyLevel,
         description: intimacyInfo.description,
-        totalTodos: userData.recentTodos.length,
-        weeklyRetrospects: userData.weeklyRetrospects.length,
         calculatedAt: new Date(),
       };
     } catch (error) {
@@ -84,8 +78,6 @@ export class IntimacyController {
         success: false,
         intimacyLevel: IntimacyLevel.MEDIUM,
         description: '기본 상태 (디폴트)',
-        totalTodos: 0,
-        weeklyRetrospects: 0,
         calculatedAt: new Date(),
         error: error.message,
       };
