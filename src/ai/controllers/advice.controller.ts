@@ -6,59 +6,39 @@ import {
   GenerateAdviceRequestDto,
   GenerateAdviceResponseDto,
 } from '../dto';
-import { AdviceGeneratorService } from '../services/advice-generator.service';
+import {
+  GenerateAdviceUseCase,
+  GenerateAdviceUseCaseCommand,
+} from '../application/use-cases/generate-advice.use-case';
 
 @Controller('ai')
 export class AdviceController {
   private readonly logger = new Logger(AdviceController.name);
 
-  constructor(
-    private readonly adviceGeneratorService: AdviceGeneratorService,
-  ) {}
+  constructor(private readonly generateAdviceUseCase: GenerateAdviceUseCase) {}
 
   @Post('generate-advice')
   async generateAdvice(
     @Body() request: GenerateAdviceRequestDto,
   ): Promise<GenerateAdviceResponseDto> {
-    try {
-      this.logger.log(
-        `Generating advice for user ${request.userId} with mentor ${request.mentorType}`,
-      );
+    const command: GenerateAdviceUseCaseCommand = {
+      mentorType: request.mentorType,
+      userId: request.userId,
+      recentTodos: request.recentTodos,
+      weeklyRetrospects: request.weeklyRetrospects,
+      overallGoal: request.overallGoal,
+      intimacyLevel: request.intimacyLevel,
+    };
 
-      const advice = await this.adviceGeneratorService.generateAdvice(
-        request.mentorType,
-        request.recentTodos,
-        request.weeklyRetrospects,
-        request.intimacyLevel,
-      );
+    const result = await this.generateAdviceUseCase.execute(command);
 
-      return {
-        success: true,
-        advice,
-        mentorType: request.mentorType,
-        generatedAt: new Date(),
-      };
-    } catch (error) {
-      this.logger.error(
-        `Failed to generate advice for user ${request.userId}:`,
-        error.message,
-      );
-
-      const fallbackAdvice = await this.adviceGeneratorService.generateAdvice(
-        request.mentorType,
-        [],
-        [],
-        request.intimacyLevel,
-      );
-
-      return {
-        success: false,
-        advice: fallbackAdvice,
-        mentorType: request.mentorType,
-        generatedAt: new Date(),
-        error: error.message,
-      };
-    }
+    return {
+      success: result.success,
+      advice: result.advice,
+      mentorType: result.mentorType,
+      generatedAt: result.generatedAt,
+      error: result.error,
+    };
   }
 
   @Post('batch-generate-advice')
@@ -74,32 +54,28 @@ export class AdviceController {
     const errors: string[] = [];
 
     for (const adviceRequest of request.requests) {
-      try {
-        const advice = await this.adviceGeneratorService.generateAdvice(
-          adviceRequest.mentorType,
-          adviceRequest.recentTodos,
-          adviceRequest.weeklyRetrospects,
-          adviceRequest.intimacyLevel,
-        );
+      const command: GenerateAdviceUseCaseCommand = {
+        mentorType: adviceRequest.mentorType,
+        userId: adviceRequest.userId,
+        recentTodos: adviceRequest.recentTodos,
+        weeklyRetrospects: adviceRequest.weeklyRetrospects,
+        overallGoal: adviceRequest.overallGoal,
+        intimacyLevel: adviceRequest.intimacyLevel,
+      };
 
-        results.push({
-          userId: adviceRequest.userId,
-          success: true,
-          advice,
-        });
+      const result = await this.generateAdviceUseCase.execute(command);
 
+      results.push({
+        userId: adviceRequest.userId,
+        success: result.success,
+        advice: result.advice,
+        error: result.error,
+      });
+
+      if (result.success) {
         successfulRequests++;
-      } catch (error) {
-        const errorMessage = `Failed to generate advice for user ${adviceRequest.userId}: ${error.message}`;
-        this.logger.error(errorMessage);
-
-        results.push({
-          userId: adviceRequest.userId,
-          success: false,
-          error: error.message,
-        });
-
-        errors.push(errorMessage);
+      } else {
+        errors.push(`User ${adviceRequest.userId}: ${result.error}`);
       }
     }
 
