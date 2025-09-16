@@ -1,7 +1,6 @@
 import {
   IsEnum,
   IsString,
-  IsNumber,
   IsDate,
   IsBoolean,
   IsOptional,
@@ -19,7 +18,7 @@ export class GetIntimacyResponseDto {
   description: string;
 
   @IsDate()
-  calculatedAt: Date;
+  createdAt: Date;
 
   @IsOptional()
   @IsString()
