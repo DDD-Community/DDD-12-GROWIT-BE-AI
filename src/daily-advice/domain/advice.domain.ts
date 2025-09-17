@@ -3,7 +3,8 @@ import { MentorTypeVO } from './value-objects/mentor-type.vo';
 import { UserId } from './value-objects/user-id.vo';
 
 export interface AdviceProps {
-  id: string;
+  id: number;
+  uid: string;
   userId: UserId;
   promptId: string;
   input: AdviceInput;
@@ -33,7 +34,8 @@ export class AdviceAggregate {
   ): AdviceAggregate {
     const now = new Date();
     return new AdviceAggregate({
-      id: nanoid(),
+      id: 0,
+      uid: nanoid(),
       userId: UserId.create(userId),
       promptId: promptId,
       input: {
@@ -62,8 +64,12 @@ export class AdviceAggregate {
   }
 
   // Getters
-  get id(): string {
+  get id(): number {
     return this.props.id;
+  }
+
+  get uid(): string {
+    return this.props.uid;
   }
 
   get userId(): UserId {

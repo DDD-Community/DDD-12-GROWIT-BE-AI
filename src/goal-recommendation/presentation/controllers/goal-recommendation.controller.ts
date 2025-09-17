@@ -1,9 +1,20 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Logger,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { GenerateGoalRecommendationCommand } from '../../application/commands/generate-goal-recommendation.command';
 import { GenerateGoalRecommendationUseCase } from '../../application/use-cases/generate-goal-recommendation.use-case';
 import {
+  DeleteGoalRecommendationResponseDto,
   GenerateGoalRecommendationRequestDto,
   GenerateGoalRecommendationResponseDto,
+  GoalRecommendationResponseDto,
+  ListGoalRecommendationResponseDto,
 } from '../dto/generate-goal-recommendation.dto';
 
 @Controller('goal-recommendation')
@@ -32,6 +43,7 @@ export class GoalRecommendationController {
       request.input.pastTodos,
       request.input.pastRetrospects,
       request.input.overallGoal,
+      request.templateUid,
     );
 
     const result =
@@ -55,6 +67,86 @@ export class GoalRecommendationController {
       output: result.entity.output,
       generatedAt: result.entity.createdAt,
       error: result.error,
+    };
+  }
+
+  @Get(':uid')
+  async getGoalRecommendation(
+    @Param('uid') uid: string,
+  ): Promise<GoalRecommendationResponseDto> {
+    this.logger.log('Getting goal recommendation:', uid);
+
+    const goalRecommendation =
+      await this.generateGoalRecommendationUseCase.getGoalRecommendation(uid);
+    if (!goalRecommendation) {
+      throw new Error(`Goal recommendation with UID ${uid} not found`);
+    }
+
+    return {
+      id: goalRecommendation.id.toString(),
+      uid: goalRecommendation.uid,
+      userId: goalRecommendation.userId.getValue(),
+      promptId: goalRecommendation.promptId,
+      input: {
+        mentorType: goalRecommendation.input.mentorType.toString(),
+        pastTodos: goalRecommendation.input.pastTodos,
+        pastRetrospects: goalRecommendation.input.pastRetrospects,
+        overallGoal: goalRecommendation.input.overallGoal,
+      },
+      output: goalRecommendation.output,
+      createdAt: goalRecommendation.createdAt,
+      updatedAt: goalRecommendation.updatedAt,
+    };
+  }
+
+  @Get()
+  async listGoalRecommendations(): Promise<ListGoalRecommendationResponseDto> {
+    this.logger.log('Listing all goal recommendations');
+
+    const goalRecommendationList =
+      await this.generateGoalRecommendationUseCase.listGoalRecommendations();
+
+    const goalRecommendationResponseList = goalRecommendationList.map(
+      (goalRecommendation) => ({
+        id: goalRecommendation.id.toString(),
+        uid: goalRecommendation.uid,
+        userId: goalRecommendation.userId.getValue(),
+        promptId: goalRecommendation.promptId,
+        input: {
+          mentorType: goalRecommendation.input.mentorType.toString(),
+          pastTodos: goalRecommendation.input.pastTodos,
+          pastRetrospects: goalRecommendation.input.pastRetrospects,
+          overallGoal: goalRecommendation.input.overallGoal,
+        },
+        output: goalRecommendation.output,
+        createdAt: goalRecommendation.createdAt,
+        updatedAt: goalRecommendation.updatedAt,
+      }),
+    );
+
+    return {
+      success: true,
+      goalRecommendations: goalRecommendationResponseList,
+    };
+  }
+
+  @Delete(':uid')
+  async deleteGoalRecommendation(
+    @Param('uid') uid: string,
+  ): Promise<DeleteGoalRecommendationResponseDto> {
+    this.logger.log('Deleting goal recommendation:', uid);
+
+    const existingGoalRecommendation =
+      await this.generateGoalRecommendationUseCase.getGoalRecommendation(uid);
+    if (!existingGoalRecommendation) {
+      throw new Error(`Goal recommendation with UID ${uid} not found`);
+    }
+
+    await this.generateGoalRecommendationUseCase.deleteGoalRecommendation(uid);
+
+    return {
+      success: true,
+      message: `Goal recommendation for user '${existingGoalRecommendation.userId.getValue()}' has been successfully deleted`,
     };
   }
 }

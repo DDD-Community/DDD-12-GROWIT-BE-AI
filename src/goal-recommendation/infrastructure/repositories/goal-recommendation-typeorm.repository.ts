@@ -19,6 +19,7 @@ export class GoalRecommendationTypeOrmRepository
 
     const typeOrmEntity = this.repository.create({
       id: props.id,
+      uid: props.uid,
       userId: props.userId.getValue(),
       promptId: props.promptId,
       mentorType: props.input.mentorType.toString(),
@@ -34,7 +35,7 @@ export class GoalRecommendationTypeOrmRepository
   }
 
   async findById(id: string): Promise<GoalRecommendationAggregate | null> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ where: { uid: id } });
     if (!entity) {
       return null;
     }
@@ -82,8 +83,22 @@ export class GoalRecommendationTypeOrmRepository
     return entities.map((entity) => this.toDomainEntity(entity));
   }
 
+  async findByUid(uid: string): Promise<GoalRecommendationAggregate | null> {
+    const entity = await this.repository.findOne({ where: { uid } });
+    if (!entity) {
+      return null;
+    }
+
+    return this.toDomainEntity(entity);
+  }
+
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.delete({ uid: id });
+  }
+
+  async deleteByUid(uid: string): Promise<boolean> {
+    const result = await this.repository.delete({ uid });
+    return result.affected !== undefined && result.affected > 0;
   }
 
   private toDomainEntity(
@@ -91,6 +106,7 @@ export class GoalRecommendationTypeOrmRepository
   ): GoalRecommendationAggregate {
     const props = {
       id: entity.id,
+      uid: entity.uid,
       userId: entity.userId,
       promptId: entity.promptId,
       input: {

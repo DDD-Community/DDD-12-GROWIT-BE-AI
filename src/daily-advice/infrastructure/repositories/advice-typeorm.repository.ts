@@ -34,7 +34,7 @@ export class AdviceTypeOrmRepository implements AdviceRepository {
   }
 
   async findById(id: string): Promise<AdviceAggregate | null> {
-    const entity = await this.repository.findOne({ where: { id } });
+    const entity = await this.repository.findOne({ where: { uid: id } });
     if (!entity) {
       return null;
     }
@@ -77,8 +77,22 @@ export class AdviceTypeOrmRepository implements AdviceRepository {
     return entities.map((entity) => this.toDomainEntity(entity));
   }
 
+  async findByUid(uid: string): Promise<AdviceAggregate | null> {
+    const entity = await this.repository.findOne({ where: { uid } });
+    if (!entity) {
+      return null;
+    }
+
+    return this.toDomainEntity(entity);
+  }
+
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.delete({ uid: id });
+  }
+
+  async deleteByUid(uid: string): Promise<boolean> {
+    const result = await this.repository.delete({ uid });
+    return result.affected !== undefined && result.affected > 0;
   }
 
   private toDomainEntity(entity: AdviceEntity): AdviceAggregate {

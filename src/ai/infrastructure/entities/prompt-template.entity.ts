@@ -1,28 +1,43 @@
+import { nanoid } from 'nanoid';
 import {
-  Entity,
-  PrimaryColumn,
+  BeforeInsert,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('prompt_template')
 export class PromptTemplateEntity {
-  @PrimaryColumn()
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
-  promptId: string;
+  uid: string;
 
   @Column()
   name: string;
 
   @Column('text')
-  prompt: string;
+  personaAndStyle: string;
+
+  @Column('text')
+  outputRules: string;
+
+  @Column('text')
+  insufficientContext: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  generateUid() {
+    if (!this.uid) {
+      this.uid = nanoid();
+    }
+  }
 }

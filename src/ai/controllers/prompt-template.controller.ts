@@ -6,15 +6,13 @@ import {
   Logger,
   Param,
   Post,
-  Put,
 } from '@nestjs/common';
-import { nanoid } from 'nanoid';
+import { CreatePromptTemplateUseCase } from '../application/use-cases/create-prompt-template.use-case';
 import {
   CreatePromptTemplateRequestDto,
   DeletePromptTemplateResponseDto,
   ListPromptTemplatesResponseDto,
   PromptTemplateResponseDto,
-  UpdatePromptTemplateRequestDto,
 } from '../dto/prompt-template.dto';
 import { PromptTemplateService } from '../services/prompt-template.service';
 
@@ -22,39 +20,27 @@ import { PromptTemplateService } from '../services/prompt-template.service';
 export class PromptTemplateController {
   private readonly logger = new Logger(PromptTemplateController.name);
 
-  constructor(private readonly promptTemplateService: PromptTemplateService) {}
+  constructor(
+    private readonly promptTemplateService: PromptTemplateService,
+    private readonly createPromptTemplateUseCase: CreatePromptTemplateUseCase,
+  ) {}
 
   @Post('prompt-templates')
   async createPromptTemplate(
     @Body() request: CreatePromptTemplateRequestDto,
-  ): Promise<PromptTemplateResponseDto> {
-    this.logger.log('Creating new prompt template:', request.name);
-
-    const promptId = nanoid();
-    const now = new Date();
-
-    const template = {
-      id: nanoid(),
-      promptId,
-      name: request.name,
-      prompt: request.prompt,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.promptTemplateService.saveTemplate(template);
-
-    return template;
+  ): Promise<{ success: boolean; id: string }> {
+    return await this.createPromptTemplateUseCase.execute(request);
   }
 
-  @Get('prompt-templates/:promptId')
+  @Get('prompt-templates/:uid')
   async getPromptTemplate(
-    @Param('promptId') promptId: string,
+    @Param('uid') uid: string,
   ): Promise<PromptTemplateResponseDto> {
-    this.logger.log('Getting prompt template:', promptId);
+    this.logger.log('Getting prompt template:', uid);
 
-    const template = this.promptTemplateService.getTemplate(promptId);
+    const template = await this.promptTemplateService.getTemplate(uid);
     if (!template) {
-      throw new Error(`Prompt template with ID ${promptId} not found`);
+      throw new Error(`Prompt template with UID ${uid} not found`);
     }
 
     return template;
@@ -64,7 +50,7 @@ export class PromptTemplateController {
   async listPromptTemplates(): Promise<ListPromptTemplatesResponseDto> {
     this.logger.log('Listing all prompt templates');
 
-    const templates = this.promptTemplateService.getAllTemplates();
+    const templates = await this.promptTemplateService.getAllTemplates();
 
     return {
       success: true,
@@ -72,68 +58,20 @@ export class PromptTemplateController {
     };
   }
 
-  @Put('prompt-templates/:promptId')
-  async updatePromptTemplate(
-    @Param('promptId') promptId: string,
-    @Body() request: UpdatePromptTemplateRequestDto,
-  ): Promise<PromptTemplateResponseDto> {
-    this.logger.log('Updating prompt template:', promptId);
-
-    const existingTemplate = this.promptTemplateService.getTemplate(promptId);
-    if (!existingTemplate) {
-      throw new Error(`Prompt template with ID ${promptId} not found`);
-    }
-
-    const updatedTemplate = {
-      ...existingTemplate,
-      name: request.name ?? existingTemplate.name,
-      prompt: request.prompt ?? existingTemplate.prompt,
-      updatedAt: new Date(),
-    };
-
-    this.promptTemplateService.updateTemplate(updatedTemplate);
-
-    return updatedTemplate;
-  }
-
-  @Put('prompt-templates/by-id/:id')
-  async updatePromptTemplateById(
-    @Param('id') id: string,
-    @Body() request: UpdatePromptTemplateRequestDto,
-  ): Promise<PromptTemplateResponseDto> {
-    this.logger.log('Updating prompt template by ID:', id);
-
-    const existingTemplate = this.promptTemplateService.getTemplateById(id);
-    if (!existingTemplate) {
-      throw new Error(`Prompt template with ID ${id} not found`);
-    }
-
-    const updatedTemplate = {
-      ...existingTemplate,
-      name: request.name ?? existingTemplate.name,
-      prompt: request.prompt ?? existingTemplate.prompt,
-      updatedAt: new Date(),
-    };
-
-    this.promptTemplateService.updateTemplate(updatedTemplate);
-
-    return updatedTemplate;
-  }
-
-  @Delete('prompt-templates/:promptId')
+  @Delete('prompt-templates/:uid')
   async deletePromptTemplate(
-    @Param('promptId') promptId: string,
+    @Param('uid') uid: string,
   ): Promise<DeletePromptTemplateResponseDto> {
-    this.logger.log('Deleting prompt template:', promptId);
+    this.logger.log('Deleting prompt template:', uid);
 
-    const existingTemplate = this.promptTemplateService.getTemplate(promptId);
+    const existingTemplate = await this.promptTemplateService.getTemplate(uid);
     if (!existingTemplate) {
-      throw new Error(`Prompt template with ID ${promptId} not found`);
+      throw new Error(`Prompt template with UID ${uid} not found`);
     }
 
-    const deleted = this.promptTemplateService.deleteTemplate(promptId);
+    const deleted = await this.promptTemplateService.deleteTemplate(uid);
     if (!deleted) {
-      throw new Error(`Failed to delete prompt template with ID ${promptId}`);
+      throw new Error(`Failed to delete prompt template with UID ${uid}`);
     }
 
     return {
