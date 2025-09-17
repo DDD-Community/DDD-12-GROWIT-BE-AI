@@ -1,9 +1,8 @@
-import { MentorType, IntimacyLevel } from '../enums';
+import { MentorType } from '../enums';
 
 export interface UserDataInterface {
   userId: string;
   mentorType: MentorType;
-  intimacyLevel: IntimacyLevel;
   recentTodos: string[];
   weeklyRetrospects: string[];
   overallGoal?: string;

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MentorType, IntimacyLevel } from '../../common/enums';
+import { MentorType } from '../../common/enums';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
 
@@ -16,14 +16,12 @@ export class AdviceGeneratorService {
     mentorType: MentorType,
     recentTodos: string[],
     weeklyRetrospects: string[],
-    intimacyLevel: IntimacyLevel,
   ): Promise<string> {
     try {
       const prompt = this.promptTemplateService.generateAdvicePrompt(
         mentorType,
         recentTodos,
         weeklyRetrospects,
-        intimacyLevel,
       );
 
       const advice = await this.openaiService.generateAdvice(prompt);

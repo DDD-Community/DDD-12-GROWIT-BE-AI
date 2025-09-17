@@ -1,12 +1,7 @@
-import { IntimacyLevel, MentorType } from '../common/enums';
+import { MentorType } from '../common/enums';
 
 export interface PromptTemplate {
   basePrompt: string;
-  intimacyModifiers: {
-    [IntimacyLevel.HIGH]: string;
-    [IntimacyLevel.MEDIUM]: string;
-    [IntimacyLevel.LOW]: string;
-  };
 }
 
 export const MENTOR_ADVICE_PROMPTS: Record<MentorType, PromptTemplate> = {
@@ -18,11 +13,6 @@ export const MENTOR_ADVICE_PROMPTS: Record<MentorType, PromptTemplate> = {
 문장: 2~3문장
 구조: copywriting 고려한 강렬한 첫 문장 & 나머지 문장은 세부 뒷받침 문장
 말투: 반말`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 조언으로 답변해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 격려 위주로 답변해줘.',
-    },
   },
   [MentorType.공자]: {
     basePrompt: `너는 세계적인 학자 공자야 너의 성격은 온화하지만 원칙적이고,
@@ -33,11 +23,6 @@ export const MENTOR_ADVICE_PROMPTS: Record<MentorType, PromptTemplate> = {
 문장: 2~3문장
 구조: copywriting 고려한 강렬한 첫 문장 & 나머지 문장은 세부 뒷받침 문장
 말투: ~다.`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 조언으로 답변해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 격려 위주로 답변해줘.',
-    },
   },
   [MentorType.워렌버핏]: {
     basePrompt: `너는 세계적인 투자가이자 자산가 워렌 버핏이야 너의 성격은 유머러스하며 검소하고,
@@ -48,11 +33,6 @@ export const MENTOR_ADVICE_PROMPTS: Record<MentorType, PromptTemplate> = {
 문장: 2~3문장
 구조: copywriting 고려한 강렬한 첫 문장 & 나머지 문장은 세부 뒷받침 문장
 말투: 반말`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 조언으로 답변해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 격려 위주로 답변해줘.',
-    },
   },
 };
 
@@ -64,11 +44,6 @@ export const MENTOR_GOAL_PROMPTS: Record<MentorType, PromptTemplate> = {
 이번 주 목표를 현실적으로 설정해줘
 글자수: 10자 이상 20자 이내
 문체: 개조식`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 목표로 설정해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 달성 가능한 목표로 설정해줘.',
-    },
   },
   [MentorType.공자]: {
     basePrompt: `너는 세계적인 학자 공자야 너의 성격은 온화하지만 원칙적이고,
@@ -78,11 +53,6 @@ export const MENTOR_GOAL_PROMPTS: Record<MentorType, PromptTemplate> = {
 이번 주 목표를 현실적으로 설정해줘
 글자수: 10자 이상 20자 이내
 문체: 개조식`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 목표로 설정해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 달성 가능한 목표로 설정해줘.',
-    },
   },
   [MentorType.워렌버핏]: {
     basePrompt: `너는 세계적인 투자가이자 자산가 워렌 버핏이야 너의 성격은 유머러스하며 검소하고,
@@ -92,11 +62,6 @@ export const MENTOR_GOAL_PROMPTS: Record<MentorType, PromptTemplate> = {
 이번 주 목표를 현실적으로 설정해줘
 글자수: 10자 이상 20자 이내
 문체: 개조식`,
-    intimacyModifiers: {
-      [IntimacyLevel.HIGH]: ' 더욱 구체적이고 도전적인 목표로 설정해줘.',
-      [IntimacyLevel.MEDIUM]: '',
-      [IntimacyLevel.LOW]: ' 기본적이고 달성 가능한 목표로 설정해줘.',
-    },
   },
 };
 

@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import 'reflect-metadata';
@@ -13,6 +14,18 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
+
+  // Global Validation Pipe 설정
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   // Global prefix
   app.setGlobalPrefix('api');

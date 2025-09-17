@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IntimacyLevel, MentorType } from '../../common/enums';
+import { MentorType } from '../../common/enums';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
 
@@ -17,7 +17,6 @@ export class GoalRecommenderService {
     pastTodos: string[],
     pastRetrospects: string[],
     overallGoal: string,
-    intimacyLevel: IntimacyLevel,
   ): Promise<string> {
     try {
       const prompt = this.promptTemplateService.generateGoalPrompt(
@@ -25,7 +24,6 @@ export class GoalRecommenderService {
         pastTodos,
         pastRetrospects,
         overallGoal,
-        intimacyLevel,
       );
 
       const goal = await this.openaiService.generateGoal(prompt);
