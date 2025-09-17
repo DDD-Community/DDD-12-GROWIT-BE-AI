@@ -1,34 +1,37 @@
-import { Module } from '@nestjs/common';
 import { HttpModule, HttpService } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AdviceController } from './controllers/advice.controller';
-import { GoalController } from './controllers/goal.controller';
-import { TestController } from './controllers/test.controller';
-import { GenerateAdviceUseCase } from './application/use-cases/generate-advice.use-case';
-import { RecommendGoalUseCase } from './application/use-cases/recommend-goal.use-case';
-import { BatchAdviceUseCase } from './application/use-cases/batch-advice.use-case';
-import { AdviceDomainService } from './domain/services/advice-domain.service';
-import { GoalDomainService } from './domain/services/goal-domain.service';
+import { SpringClientService } from '../external/spring-client.service';
+import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
+import { PromptTemplateController } from './controllers/prompt-template.controller';
 import { MentorFactory } from './domain/factories/mentor.factory';
 import { AIGeneratorRepository } from './domain/repositories/ai-generator.repository';
 import { SpringIntegrationRepository } from './domain/repositories/spring-integration.repository';
+import { PromptTemplateEntity } from './infrastructure/entities/prompt-template.entity';
+import { MockSpringRepository } from './infrastructure/mock-spring.repository';
 import { OpenAIGeneratorRepository } from './infrastructure/openai-generator.repository';
 import { SpringIntegrationRepositoryImpl } from './infrastructure/spring-integration.repository';
-import { MockSpringRepository } from './infrastructure/mock-spring.repository';
-import { SpringClientService } from '../external/spring-client.service';
-import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
+import { AdviceGeneratorService } from './services/advice-generator.service';
+import { GoalRecommenderService } from './services/goal-recommender.service';
+import { OpenAIService } from './services/openai.service';
+import { PromptTemplateService } from './services/prompt-template.service';
+
 @Module({
-  imports: [ConfigModule, HttpModule, ScheduleModule.forRoot()],
-  controllers: [AdviceController, GoalController, TestController],
+  imports: [
+    ConfigModule,
+    HttpModule,
+    ScheduleModule.forRoot(),
+    TypeOrmModule.forFeature([PromptTemplateEntity]),
+  ],
+  controllers: [PromptTemplateController],
   providers: [
-    GenerateAdviceUseCase,
-    RecommendGoalUseCase,
-    BatchAdviceUseCase,
-    AdviceDomainService,
-    GoalDomainService,
     MentorFactory,
+    OpenAIService,
+    AdviceGeneratorService,
+    GoalRecommenderService,
     {
       provide: AIGeneratorRepository,
       useClass: OpenAIGeneratorRepository,
@@ -47,13 +50,16 @@ import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
     },
     SpringClientService,
     DailyAdviceScheduler,
+    PromptTemplateService,
   ],
   exports: [
-    GenerateAdviceUseCase,
-    RecommendGoalUseCase,
-    BatchAdviceUseCase,
+    AIGeneratorRepository,
     SpringIntegrationRepository,
     DailyAdviceScheduler,
+    PromptTemplateService,
+    OpenAIService,
+    AdviceGeneratorService,
+    GoalRecommenderService,
   ],
 })
 export class AiModule {}

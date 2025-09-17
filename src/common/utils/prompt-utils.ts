@@ -1,4 +1,4 @@
-import { MentorType, IntimacyLevel } from '../enums';
+import { MentorType } from '../enums';
 import {
   MENTOR_ADVICE_PROMPTS,
   MENTOR_GOAL_PROMPTS,
@@ -10,11 +10,9 @@ export class PromptUtils {
     mentorType: MentorType,
     recentTodos: string[],
     weeklyRetrospects: string[],
-    intimacyLevel: IntimacyLevel,
   ): string {
     const template = MENTOR_ADVICE_PROMPTS[mentorType];
     const basePrompt = template.basePrompt;
-    const intimacyModifier = template.intimacyModifiers[intimacyLevel];
 
     const todosText =
       recentTodos.length > 0
@@ -26,11 +24,9 @@ export class PromptUtils {
         ? weeklyRetrospects.join(', ')
         : '작성된 회고가 없습니다';
 
-    return (
-      basePrompt
-        .replace('{이번주 유저의 투두}', todosText)
-        .replace('{전체 주간 회고}', retrospectsText) + intimacyModifier
-    );
+    return basePrompt
+      .replace('{이번주 유저의 투두}', todosText)
+      .replace('{전체 주간 회고}', retrospectsText);
   }
 
   static generateGoalPrompt(
@@ -38,11 +34,9 @@ export class PromptUtils {
     pastTodos: string[],
     pastRetrospects: string[],
     overallGoal: string,
-    intimacyLevel: IntimacyLevel,
   ): string {
     const template = MENTOR_GOAL_PROMPTS[mentorType];
     const basePrompt = template.basePrompt;
-    const intimacyModifier = template.intimacyModifiers[intimacyLevel];
 
     const todosText =
       pastTodos.length > 0 ? pastTodos.join(', ') : '과거 투두가 없습니다';
@@ -52,13 +46,10 @@ export class PromptUtils {
         ? pastRetrospects.join(', ')
         : '과거 회고가 없습니다';
 
-    return (
-      basePrompt
-        .replace('{과거 유저의 투두}', todosText)
-        .replace('{과거 주간 회고}', retrospectsText)
-        .replace('{전체 목표}', overallGoal || '목표가 설정되지 않음') +
-      intimacyModifier
-    );
+    return basePrompt
+      .replace('{과거 유저의 투두}', todosText)
+      .replace('{과거 주간 회고}', retrospectsText)
+      .replace('{전체 목표}', overallGoal || '목표가 설정되지 않음');
   }
 
   static getFallbackAdvice(mentorType: MentorType): string {

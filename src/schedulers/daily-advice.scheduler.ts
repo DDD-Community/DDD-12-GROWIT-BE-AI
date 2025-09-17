@@ -1,17 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { BatchAdviceUseCase } from '../ai/application/use-cases/batch-advice.use-case';
 
 @Injectable()
 export class DailyAdviceScheduler {
   private readonly logger = new Logger(DailyAdviceScheduler.name);
   private readonly isSchedulerEnabled: boolean;
 
-  constructor(
-    private readonly batchAdviceUseCase: BatchAdviceUseCase,
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.isSchedulerEnabled = this.configService.get<boolean>(
       'SCHEDULER_ENABLED',
       true,
@@ -28,21 +24,9 @@ export class DailyAdviceScheduler {
     }
 
     try {
-      this.logger.log('Starting daily advice generation...');
-
-      const result = await this.batchAdviceUseCase.executeForActiveUsers();
-
-      this.logger.log(
-        `Daily advice generation completed. Success: ${result.successCount}/${result.totalUsers}, ` +
-          `Failures: ${result.failureCount}, Total time: ${result.totalExecutionTime}ms`,
-      );
-
-      if (result.failureCount > 0) {
-        const errors = result.results
-          .filter((r) => !r.success)
-          .map((r) => `User ${r.userId}: ${r.error}`);
-        this.logger.error('Daily advice generation errors:', errors);
-      }
+      this.logger.log('Daily advice scheduler is running...');
+      // TODO: Implement batch advice generation
+      this.logger.log('Daily advice generation completed (placeholder)');
     } catch (error) {
       this.logger.error('Daily advice generation failed:', error.message);
     }

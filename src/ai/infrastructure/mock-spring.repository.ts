@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SpringIntegrationRepository } from '../domain/repositories/spring-integration.repository';
 import { SpringUserData } from '../../common/interfaces';
-import { MentorType, IntimacyLevel } from '../../common/enums';
+import { MentorType } from '../../common/enums';
 
 @Injectable()
 export class MockSpringRepository extends SpringIntegrationRepository {
@@ -19,7 +19,6 @@ export class MockSpringRepository extends SpringIntegrationRepository {
       {
         userId: 'user-001-timcook',
         mentorType: MentorType.팀쿡,
-        intimacyLevel: IntimacyLevel.HIGH,
         recentTodos: [
           '프론트엔드 개발 완료',
           'API 연동 테스트',
@@ -35,7 +34,6 @@ export class MockSpringRepository extends SpringIntegrationRepository {
       {
         userId: 'user-002-confucius',
         mentorType: MentorType.공자,
-        intimacyLevel: IntimacyLevel.MEDIUM,
         recentTodos: [
           '알고리즘 문제 10개 풀기',
           'CS 기초 개념 정리',
@@ -50,7 +48,6 @@ export class MockSpringRepository extends SpringIntegrationRepository {
       {
         userId: 'user-003-warren',
         mentorType: MentorType.워렌버핏,
-        intimacyLevel: IntimacyLevel.LOW,
         recentTodos: ['주식 공부', '투자 서적 읽기'],
         weeklyRetrospects: ['투자에 대해 공부하기 시작했다.'],
         overallGoal: '재정 독립 달성하기',
@@ -58,7 +55,6 @@ export class MockSpringRepository extends SpringIntegrationRepository {
       {
         userId: 'user-004-empty-data',
         mentorType: MentorType.팀쿡,
-        intimacyLevel: IntimacyLevel.LOW,
         recentTodos: [],
         weeklyRetrospects: [],
         overallGoal: '새로운 도전 시작하기',
@@ -66,7 +62,6 @@ export class MockSpringRepository extends SpringIntegrationRepository {
       {
         userId: 'user-005-high-intimacy',
         mentorType: MentorType.공자,
-        intimacyLevel: IntimacyLevel.HIGH,
         recentTodos: [
           '알고리즘 고급 문제 해결',
           '오픈소스 프로젝트 기여',

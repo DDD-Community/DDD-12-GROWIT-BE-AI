@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { match } from 'ts-pattern';
 import { MentorType } from '../../../common/enums';
-import { Mentor, MentorCharacteristics } from '../entities/mentor.entity';
+import { Mentor, MentorCharacteristics } from '../mentor.domain';
 
 @Injectable()
 export class MentorFactory {
@@ -13,7 +13,7 @@ export class MentorFactory {
   private getMentorCharacteristics(type: MentorType): MentorCharacteristics {
     return match(type)
       .with(MentorType.팀쿡, () => ({
-        name: '팀쿡',
+        name: 'Tim Cook',
         description: '사이드 프로젝트 멘토 - 꼼꼼한 전략가',
         advicePrompt: `너는 팀쿡이야 너의 성격은 꼼꼼한 전략가고, 말투는 차분하지만 직설적이지
 스킬셋은 운영 효율화, 제품 브랜딩, 실행력을 갖고 있어
@@ -30,7 +30,7 @@ export class MentorFactory {
 문체: 개조식`,
       }))
       .with(MentorType.공자, () => ({
-        name: '공자',
+        name: 'Confucius',
         description: '스터디 멘토 - 온화하지만 원칙적',
         advicePrompt: `너는 세계적인 학자 공자야 너의 성격은 온화하지만 원칙적이고,
 말투는 사자성어(한글로)와 비유적 표현을 사용하지만 직관적이지
@@ -49,7 +49,7 @@ export class MentorFactory {
 문체: 개조식`,
       }))
       .with(MentorType.워렌버핏, () => ({
-        name: '워렌버핏',
+        name: 'Warren Buffet',
         description: '재테크 멘토 - 유머러스하며 검소',
         advicePrompt: `너는 세계적인 투자가이자 자산가 워렌 버핏이야 너의 성격은 유머러스하며 검소하고,
 말투는 명언과 팩폭을 넘나들면 현명하지
