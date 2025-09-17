@@ -83,8 +83,22 @@ export class GoalRecommendationTypeOrmRepository
     return entities.map((entity) => this.toDomainEntity(entity));
   }
 
+  async findByUid(uid: string): Promise<GoalRecommendationAggregate | null> {
+    const entity = await this.repository.findOne({ where: { uid } });
+    if (!entity) {
+      return null;
+    }
+
+    return this.toDomainEntity(entity);
+  }
+
   async delete(id: string): Promise<void> {
     await this.repository.delete({ uid: id });
+  }
+
+  async deleteByUid(uid: string): Promise<boolean> {
+    const result = await this.repository.delete({ uid });
+    return result.affected !== undefined && result.affected > 0;
   }
 
   private toDomainEntity(

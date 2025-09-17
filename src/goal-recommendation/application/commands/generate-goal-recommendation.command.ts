@@ -6,5 +6,6 @@ export class GenerateGoalRecommendationCommand {
     public readonly pastTodos: string[],
     public readonly pastRetrospects: string[],
     public readonly overallGoal: string,
+    public readonly templateUid?: string,
   ) {}
 }

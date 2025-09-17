@@ -43,6 +43,10 @@ export class GenerateGoalRecommendationRequestDto {
   @IsNotEmpty()
   promptId: string;
 
+  @IsOptional()
+  @IsString()
+  templateUid?: string;
+
   @ValidateNested()
   @Type(() => GoalRecommendationInputDto)
   input: GoalRecommendationInputDto;
@@ -69,4 +73,45 @@ export class GenerateGoalRecommendationResponseDto {
   @IsOptional()
   @IsString()
   error?: string;
+}
+
+// 목표 추천 조회용 DTO
+export class GoalRecommendationResponseDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  uid: string;
+
+  @IsString()
+  userId: string;
+
+  @IsString()
+  promptId: string;
+
+  input: GoalRecommendationInputDto;
+
+  @IsString()
+  output: string;
+
+  @IsDate()
+  createdAt: Date;
+
+  @IsDate()
+  updatedAt: Date;
+}
+
+export class ListGoalRecommendationResponseDto {
+  @IsBoolean()
+  success: boolean;
+
+  goalRecommendations: GoalRecommendationResponseDto[];
+}
+
+export class DeleteGoalRecommendationResponseDto {
+  @IsBoolean()
+  success: boolean;
+
+  @IsString()
+  message: string;
 }

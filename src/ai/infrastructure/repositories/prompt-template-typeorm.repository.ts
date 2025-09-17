@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PromptTemplate } from '../../domain/prompt-template.domain';
+import {
+  PromptTemplate,
+  PromptTemplateDomain,
+} from '../../domain/prompt-template.domain';
 import { PromptTemplateRepository } from '../../domain/repositories/prompt-template.repository';
 import { PromptTemplateEntity } from '../entities/prompt-template.entity';
 
@@ -77,15 +80,15 @@ export class PromptTemplateTypeOrmRepository
   }
 
   private toDomain(entity: PromptTemplateEntity): PromptTemplate {
-    return {
-      id: entity.uid, // id 필드에 uid 값 반환
-      uid: entity.uid,
-      name: entity.name,
-      personaAndStyle: entity.personaAndStyle,
-      outputRules: entity.outputRules,
-      insufficientContext: entity.insufficientContext,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    };
+    return new PromptTemplateDomain(
+      entity.name,
+      entity.personaAndStyle,
+      entity.outputRules,
+      entity.insufficientContext,
+      entity.uid, // id 필드에 uid 값 반환
+      entity.uid,
+      entity.createdAt,
+      entity.updatedAt,
+    );
   }
 }

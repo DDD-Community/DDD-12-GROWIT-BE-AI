@@ -1,4 +1,11 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class GenerateAdviceInputDto {
   @IsString()
@@ -27,6 +34,10 @@ export class GenerateAdviceRequestDto {
   @IsNotEmpty()
   promptId: string;
 
+  @IsOptional()
+  @IsString()
+  templateUid?: string;
+
   @IsNotEmpty()
   input: GenerateAdviceInputDto;
 }
@@ -38,4 +49,45 @@ export class GenerateAdviceResponseDto {
   output: string | null;
   generatedAt: Date | null;
   error?: string;
+}
+
+// 조언 조회용 DTO
+export class AdviceResponseDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  uid: string;
+
+  @IsString()
+  userId: string;
+
+  @IsString()
+  promptId: string;
+
+  input: GenerateAdviceInputDto;
+
+  @IsString()
+  output: string;
+
+  @IsDate()
+  createdAt: Date;
+
+  @IsDate()
+  updatedAt: Date;
+}
+
+export class ListAdviceResponseDto {
+  @IsBoolean()
+  success: boolean;
+
+  advice: AdviceResponseDto[];
+}
+
+export class DeleteAdviceResponseDto {
+  @IsBoolean()
+  success: boolean;
+
+  @IsString()
+  message: string;
 }

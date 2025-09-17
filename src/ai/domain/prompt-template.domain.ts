@@ -7,6 +7,7 @@ export interface PromptTemplate {
   insufficientContext: string;
   createdAt: Date;
   updatedAt: Date;
+  generateFullPrompt(): string;
 }
 
 export class PromptTemplateDomain implements PromptTemplate {
