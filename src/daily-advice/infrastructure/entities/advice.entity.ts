@@ -1,15 +1,20 @@
+import { nanoid } from 'nanoid';
 import {
-  Entity,
-  PrimaryColumn,
+  BeforeInsert,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('advice')
 export class AdviceEntity {
-  @PrimaryColumn()
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  uid: string;
 
   @Column()
   userId: string;
@@ -33,4 +38,11 @@ export class AdviceEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  generateUid() {
+    if (!this.uid) {
+      this.uid = nanoid();
+    }
+  }
 }

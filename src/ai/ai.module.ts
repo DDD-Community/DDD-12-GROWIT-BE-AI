@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SpringClientService } from '../external/spring-client.service';
 import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
+import { CreatePromptTemplateUseCase } from './application/use-cases/create-prompt-template.use-case';
 import { PromptTemplateController } from './controllers/prompt-template.controller';
 import { MentorFactory } from './domain/factories/mentor.factory';
 import { AIGeneratorRepository } from './domain/repositories/ai-generator.repository';
@@ -13,6 +14,7 @@ import { SpringIntegrationRepository } from './domain/repositories/spring-integr
 import { PromptTemplateEntity } from './infrastructure/entities/prompt-template.entity';
 import { MockSpringRepository } from './infrastructure/mock-spring.repository';
 import { OpenAIGeneratorRepository } from './infrastructure/openai-generator.repository';
+import { PromptTemplateTypeOrmRepository } from './infrastructure/repositories/prompt-template-typeorm.repository';
 import { SpringIntegrationRepositoryImpl } from './infrastructure/spring-integration.repository';
 import { AdviceGeneratorService } from './services/advice-generator.service';
 import { GoalRecommenderService } from './services/goal-recommender.service';
@@ -37,6 +39,10 @@ import { PromptTemplateService } from './services/prompt-template.service';
       useClass: OpenAIGeneratorRepository,
     },
     {
+      provide: 'PromptTemplateRepository',
+      useClass: PromptTemplateTypeOrmRepository,
+    },
+    {
       provide: SpringIntegrationRepository,
       useFactory: (httpService, configService) => {
         const isTestMode =
@@ -51,6 +57,7 @@ import { PromptTemplateService } from './services/prompt-template.service';
     SpringClientService,
     DailyAdviceScheduler,
     PromptTemplateService,
+    CreatePromptTemplateUseCase,
   ],
   exports: [
     AIGeneratorRepository,

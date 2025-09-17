@@ -1,15 +1,20 @@
 import {
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  BeforeInsert,
 } from 'typeorm';
+import { nanoid } from 'nanoid';
 
 @Entity('goal_recommendation')
 export class GoalRecommendationTypeOrmEntity {
-  @PrimaryColumn()
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  uid: string;
 
   @Column()
   userId: string;
@@ -37,4 +42,11 @@ export class GoalRecommendationTypeOrmEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  generateUid() {
+    if (!this.uid) {
+      this.uid = nanoid();
+    }
+  }
 }

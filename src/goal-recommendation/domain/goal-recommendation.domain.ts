@@ -3,7 +3,8 @@ import { MentorTypeVO } from './value-objects/mentor-type.vo';
 import { UserId } from './value-objects/user-id.vo';
 
 export interface GoalRecommendationProps {
-  id: string;
+  id: number;
+  uid: string;
   userId: UserId;
   promptId: string;
   input: GoalRecommendationInput;
@@ -33,7 +34,8 @@ export class GoalRecommendationAggregate {
   ): GoalRecommendationAggregate {
     const now = new Date();
     return new GoalRecommendationAggregate({
-      id: nanoid(),
+      id: 0, // DB에서 자동 생성
+      uid: nanoid(),
       userId: UserId.create(userId),
       promptId: promptId,
       input: {
@@ -64,8 +66,12 @@ export class GoalRecommendationAggregate {
   }
 
   // Getters
-  get id(): string {
+  get id(): number {
     return this.props.id;
+  }
+
+  get uid(): string {
+    return this.props.uid;
   }
 
   get userId(): UserId {

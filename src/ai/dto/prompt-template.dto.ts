@@ -5,42 +5,57 @@ export class CreatePromptTemplateRequestDto {
   name: string;
 
   @IsString()
-  prompt: string;
+  personaAndStyle: string;
+
+  @IsString()
+  outputRules: string;
+
+  @IsString()
+  insufficientContext: string;
 }
 
 export class UpdatePromptTemplateRequestDto {
-  @IsString()
-  promptId: string;
-
   @IsOptional()
   @IsString()
   name?: string;
 
   @IsOptional()
   @IsString()
-  prompt?: string;
+  personaAndStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  outputRules?: string;
+
+  @IsOptional()
+  @IsString()
+  insufficientContext?: string;
 }
 
 export class PromptTemplateResponseDto {
   @IsString()
-  promptId: string;
+  id: string; // 실제로는 uid 값
+
+  @IsString()
+  uid: string;
 
   @IsString()
   name: string;
 
   @IsString()
-  prompt: string;
+  personaAndStyle: string;
+
+  @IsString()
+  outputRules: string;
+
+  @IsString()
+  insufficientContext: string;
 
   @IsDate()
   createdAt: Date;
 
   @IsDate()
   updatedAt: Date;
-}
-
-export class GetPromptTemplateRequestDto {
-  @IsString()
-  promptId: string;
 }
 
 export class ListPromptTemplatesResponseDto {
