@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MentorType } from '../../common/enums';
+import { MentorType } from '../domain/value-objects/mentor-type.vo';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
 

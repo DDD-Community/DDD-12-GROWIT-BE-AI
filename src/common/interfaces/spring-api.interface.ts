@@ -1,4 +1,4 @@
-import { MentorType } from '../enums';
+import { MentorType } from '../../ai/domain/value-objects/mentor-type.vo';
 
 export interface SpringUserData {
   userId: string;

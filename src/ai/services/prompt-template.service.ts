@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MentorType } from '../../common/enums';
 import { DEFAULT_ADVICE_TEMPLATES } from '../../config/mentor-prompts.config';
 import {
   PromptTemplate,
   PromptTemplateDomain,
 } from '../domain/prompt-template.domain';
 import { PromptTemplateRepository } from '../domain/repositories/prompt-template.repository';
+import { MentorType } from '../domain/value-objects/mentor-type.vo';
 
 @Injectable()
 export class PromptTemplateService {

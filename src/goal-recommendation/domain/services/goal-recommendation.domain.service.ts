@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MentorType } from '../../../common/enums/mentor-type.enum';
+import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
 import {
   GoalRecommendationAggregate,
   GoalRecommendationInput,
@@ -57,7 +57,7 @@ export class GoalRecommendationDomainService {
       }
 
       // AI 목표 추천 생성
-      const mentorTypeValue = command.input.mentorType.getCommonMentorType();
+      const mentorTypeValue = command.input.mentorType.getMentorType();
       const recommendedGoal = await this.goalRecommender.recommendGoal(
         mentorTypeValue,
         command.input.pastTodos,

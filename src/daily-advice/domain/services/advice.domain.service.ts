@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MentorType } from '../../../common/enums/mentor-type.enum';
+import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
 import { AdviceAggregate, AdviceInput } from '../advice.domain';
 
 export interface GenerateAdviceCommand {
@@ -51,7 +51,7 @@ export class AdviceDomainService {
       }
 
       // AI 조언 생성
-      const mentorTypeValue = command.input.mentorType.getCommonMentorType();
+      const mentorTypeValue = command.input.mentorType.getMentorType();
       const generatedAdvice = await this.adviceGenerator.generateAdvice(
         mentorTypeValue,
         command.input.recentTodos,

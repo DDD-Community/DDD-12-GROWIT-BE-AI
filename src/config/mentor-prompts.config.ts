@@ -1,4 +1,4 @@
-import { MentorType } from '../common/enums';
+import { MentorType } from '../ai/domain/value-objects/mentor-type.vo';
 export const DEFAULT_ADVICE_TEMPLATES: Record<MentorType, string> = {
   [MentorType.팀쿡]:
     '오늘도 집중해서 프로젝트를 진행해보자. 작은 성취도 중요한 발걸음이야.',

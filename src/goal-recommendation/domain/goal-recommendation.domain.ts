@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { MentorTypeVO } from './value-objects/mentor-type.vo';
+import { MentorTypeVO } from '../../ai/domain/value-objects/mentor-type.vo';
 import { UserId } from './value-objects/user-id.vo';
 
 export interface GoalRecommendationProps {

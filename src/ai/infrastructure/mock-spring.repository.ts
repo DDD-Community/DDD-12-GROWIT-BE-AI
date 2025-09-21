@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SpringIntegrationRepository } from '../domain/repositories/spring-integration.repository';
 import { SpringUserData } from '../../common/interfaces';
-import { MentorType } from '../../common/enums';
+import { SpringIntegrationRepository } from '../domain/repositories/spring-integration.repository';
+import { MentorType } from '../domain/value-objects/mentor-type.vo';
 
 @Injectable()
 export class MockSpringRepository extends SpringIntegrationRepository {

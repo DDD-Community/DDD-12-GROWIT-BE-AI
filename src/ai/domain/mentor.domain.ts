@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import { MentorType } from '../../common/enums';
+import { MentorType } from './value-objects/mentor-type.vo';
 
 export class Mentor {
   constructor(

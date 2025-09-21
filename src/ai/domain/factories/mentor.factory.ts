@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { match } from 'ts-pattern';
-import { MentorType } from '../../../common/enums';
 import { Mentor, MentorCharacteristics } from '../mentor.domain';
+import { MentorType } from '../value-objects/mentor-type.vo';
 
 @Injectable()
 export class MentorFactory {
