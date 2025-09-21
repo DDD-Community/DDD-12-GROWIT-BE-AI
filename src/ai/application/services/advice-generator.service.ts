@@ -1,17 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { AdviceGenerator } from '../../../daily-advice/domain/services/advice-generator.interface';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
-
-export interface AdviceGenerator {
-  generateAdviceByPromptId(
-    promptId: string,
-    overallGoal: string,
-    completedTodos: string[],
-    incompleteTodos: string[],
-    pastWeeklyGoals: string[],
-    weeklyRetrospects: string[],
-  ): Promise<string>;
-}
 
 @Injectable()
 export class AdviceGeneratorService implements AdviceGenerator {

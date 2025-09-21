@@ -1,18 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { GoalRecommender } from '../../../goal-recommendation/domain/services/goal-recommender.interface';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
-
-export interface GoalRecommender {
-  recommendGoalByPromptId(
-    promptId: string,
-    pastTodos: string[],
-    pastRetrospects: string[],
-    overallGoal: string,
-    completedTodos?: string[],
-    pastWeeklyGoals?: string[],
-    remainingTime?: string,
-  ): Promise<string>;
-}
 
 @Injectable()
 export class GoalRecommenderService implements GoalRecommender {

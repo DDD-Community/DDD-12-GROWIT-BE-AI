@@ -1,3 +1,5 @@
+import { GoalRecommendationAggregate } from '../../domain/goal-recommendation.domain';
+
 export class GenerateGoalRecommendationCommand {
   constructor(
     public readonly userId: string,
@@ -10,4 +12,10 @@ export class GenerateGoalRecommendationCommand {
     public readonly remainingTime?: string,
     public readonly templateUid?: string,
   ) {}
+}
+
+export interface GoalRecommendationResult {
+  success: boolean;
+  entity: GoalRecommendationAggregate | null;
+  error?: string;
 }

@@ -1,9 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AdviceGenerator } from '../../../ai/application/services/advice-generator.service';
 import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
-import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
 import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { AdviceAggregate, AdviceInput } from '../advice.domain';
+import { AdviceGenerator } from './advice-generator.interface';
 
 export interface GenerateAdviceCommand {
   userId: string;
@@ -89,19 +88,6 @@ export class AdviceDomainService {
         entity: null,
         error: error.message,
       };
-    }
-  }
-
-  private getFallbackAdvice(mentorType: MentorType): string {
-    switch (mentorType) {
-      case MentorType['피터 레벨스']:
-        return '오늘도 집중해서 프로젝트를 진행해보자. 작은 성취도 중요한 발걸음이야.';
-      case MentorType['젠슨 황']:
-        return '꾸준히 배우고 실천하는 것이야말로 진정한 성장의 길이다. 오늘도 한 걸음씩 나아가보자.';
-      case MentorType.워렌버핏:
-        return '투자에서 가장 중요한 건 인내야. 오늘 하루도 꾸준히 실력을 쌓아가자구.';
-      default:
-        return '오늘도 꾸준히 노력해보자.';
     }
   }
 }

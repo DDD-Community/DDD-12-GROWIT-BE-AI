@@ -1,9 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { OpenAIService } from '../../../ai/application/services/openai.service';
-import { PromptTemplateService } from '../../../ai/application/services/prompt-template.service';
 import { GoalRecommendationAggregate } from '../../domain/goal-recommendation.domain';
-import { GoalRecommendationRepository } from '../../domain/goal-recommendation.repository';
+import { GoalRecommendationRepository } from '../../domain/repositories/goal-recommendation.repository';
 import { GoalRecommendationDomainService } from '../../domain/services/goal-recommendation.domain.service';
+import { GoalTemplateDomainService } from '../../domain/services/goal-template.domain.service';
 import { GenerateGoalRecommendationCommand } from '../commands/generate-goal-recommendation.command';
 
 export interface GenerateGoalRecommendationResult {
@@ -21,8 +20,7 @@ export class GenerateGoalRecommendationUseCase {
     @Inject('GoalRecommendationRepository')
     private readonly goalRecommendationRepository: GoalRecommendationRepository,
     private readonly goalRecommendationDomainService: GoalRecommendationDomainService,
-    private readonly promptTemplateService: PromptTemplateService,
-    private readonly openaiService: OpenAIService,
+    private readonly goalTemplateService: GoalTemplateDomainService,
   ) {}
 
   async execute(
@@ -33,16 +31,12 @@ export class GenerateGoalRecommendationUseCase {
     );
 
     try {
-      let domainResult: GenerateGoalRecommendationResult;
-
-      if (command.templateUid) {
-        domainResult = await this.generateWithTemplate(command);
-      } else {
-        domainResult =
-          await this.goalRecommendationDomainService.generateGoalRecommendation(
+      // 1. Domain Service를 통해 비즈니스 로직 실행
+      const domainResult = command.templateUid
+        ? await this.goalTemplateService.generateWithTemplate(command)
+        : await this.goalRecommendationDomainService.generateGoalRecommendation(
             command,
           );
-      }
 
       if (!domainResult.success) {
         this.logger.error(
@@ -51,6 +45,7 @@ export class GenerateGoalRecommendationUseCase {
         return domainResult;
       }
 
+      // 2. Repository를 통해 영속성 처리
       await this.goalRecommendationRepository.save(domainResult.entity);
 
       this.logger.log(
@@ -72,79 +67,6 @@ export class GenerateGoalRecommendationUseCase {
         error: `AI service failed: ${error.message}`,
       };
     }
-  }
-
-  private async generateWithTemplate(
-    command: GenerateGoalRecommendationCommand,
-  ): Promise<GenerateGoalRecommendationResult> {
-    try {
-      const template = await this.promptTemplateService.getTemplateByUid(
-        command.templateUid!,
-      );
-      if (!template) {
-        return {
-          success: false,
-          entity: null,
-          error: `Template with UID ${command.templateUid} not found`,
-        };
-      }
-
-      const goalRecommendationEntity = GoalRecommendationAggregate.create(
-        command.userId,
-        command.promptId,
-        template.name,
-        command.pastTodos,
-        command.pastRetrospects,
-        command.overallGoal,
-      );
-
-      const basePrompt = template.generateFullPrompt();
-      const contextualPrompt = this.buildContextualPrompt(
-        basePrompt,
-        template.name,
-        command.pastTodos,
-        command.pastRetrospects,
-        command.overallGoal,
-      );
-
-      const generatedGoal =
-        await this.openaiService.generateGoal(contextualPrompt);
-
-      goalRecommendationEntity.updateOutput(generatedGoal);
-
-      return {
-        success: true,
-        entity: goalRecommendationEntity,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        entity: null,
-        error: error.message,
-      };
-    }
-  }
-
-  private buildContextualPrompt(
-    basePrompt: string,
-    mentorType: string,
-    pastTodos: string[],
-    pastRetrospects: string[],
-    overallGoal: string,
-  ): string {
-    const context = `
-사용자 정보:
-- 멘토 타입: ${mentorType}
-- 과거 할 일: ${pastTodos.join(', ')}
-- 과거 회고: ${pastRetrospects.join(', ')}
-- 전체 목표: ${overallGoal}
-
-${basePrompt}
-
-위 정보를 바탕으로 ${mentorType} 멘토의 관점에서 목표를 추천해주세요.
-`;
-
-    return context;
   }
 
   async getGoalRecommendation(

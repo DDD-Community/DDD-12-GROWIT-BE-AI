@@ -3,13 +3,11 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
-  Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('goal_recommendation')
-export class GoalRecommendationTypeOrmEntity {
+export abstract class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,18 +19,6 @@ export class GoalRecommendationTypeOrmEntity {
 
   @Column()
   promptId: string;
-
-  @Column()
-  mentorType: string;
-
-  @Column('simple-array')
-  pastTodos: string[];
-
-  @Column('simple-array')
-  pastRetrospects: string[];
-
-  @Column('text')
-  overallGoal: string;
 
   @Column('text')
   output: string;

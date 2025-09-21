@@ -7,9 +7,7 @@ import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
 import { AdviceGeneratorService } from './application/services/advice-generator.service';
 import { GoalRecommenderService } from './application/services/goal-recommender.service';
 import { OpenAIService } from './application/services/openai.service';
-import { PromptBasedGeneratorService } from './application/services/prompt-based-generator.service';
 import { PromptTemplateService } from './application/services/prompt-template.service';
-import { TemplateBasedGeneratorService } from './application/services/template-based-generator.service';
 import { CreatePromptTemplateUseCase } from './application/use-cases/create-prompt-template.use-case';
 import { PromptTemplateController } from './controllers/prompt-template.controller';
 import { AIGeneratorRepository } from './domain/repositories/ai-generator.repository';
@@ -29,8 +27,6 @@ import { PromptTemplateTypeOrmRepository } from './infrastructure/repositories/p
     OpenAIService,
     AdviceGeneratorService,
     GoalRecommenderService,
-    PromptBasedGeneratorService,
-    TemplateBasedGeneratorService,
     {
       provide: AIGeneratorRepository,
       useClass: OpenAIGeneratorRepository,
@@ -59,8 +55,6 @@ import { PromptTemplateTypeOrmRepository } from './infrastructure/repositories/p
     OpenAIService,
     AdviceGeneratorService,
     GoalRecommenderService,
-    PromptBasedGeneratorService,
-    TemplateBasedGeneratorService,
   ],
 })
 export class AiModule {}

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AdviceAggregate } from '../../domain/advice.domain';
-import { AdviceRepository } from '../../domain/advice.repository';
+import { AdviceRepository } from '../../domain/repositories/advice.repository';
 import { AdviceEntity } from '../entities/advice.entity';
 
 @Injectable()

@@ -39,7 +39,7 @@ export class ValidationUtils {
 
     const trimmed = response.trim();
 
-    return trimmed.length >= 5 && trimmed.length <= 200;
+    return trimmed.length >= 5 && trimmed.length <= 1000;
   }
 
   static sanitizeResponse(response: string): string {

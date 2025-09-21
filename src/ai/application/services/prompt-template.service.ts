@@ -52,34 +52,27 @@ export class PromptTemplateService implements PromptInfoService {
         ? weeklyRetrospects.join(', ')
         : '주간 회고가 없습니다';
 
-    let prompt = template.personaAndStyle;
-
-    if (template.webSearchProtocol) {
-      prompt += `\n\n${template.webSearchProtocol}`;
-    }
-
-    prompt += `\n\n사용자 정보:
+    const promptParts = [
+      template.personaAndStyle,
+      template.webSearchProtocol,
+      `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 완료된 투두: ${completedTodosText}
 진행 중인 투두: ${incompleteTodosText}
 이전 주간 목표: ${pastWeeklyGoalsText}
-주간 회고: ${weeklyRetrospectsText}`;
-
-    prompt += `\n\n위 정보를 바탕으로 KPT(Keep, Problem, Try) 형식으로 오늘의 조언을 제공해주세요:
+주간 회고: ${weeklyRetrospectsText}`,
+      `\n\n위 정보를 바탕으로 KPT(Keep, Problem, Try) 형식으로 오늘의 조언을 제공해주세요:
 
 **KEEP (유지할 것)**: 잘하고 있는 점이나 계속해야 할 것 (1-2문장)
 **PROBLEM (문제점)**: 개선이 필요한 부분이나 해결해야 할 문제 (1-2문장)
 **TRY (시도할 것)**: 앞으로 시도해볼 새로운 방법이나 개선 방안 (1-2문장)
 
-각 섹션을 간결하게 작성하고, 전체 응답을 완전히 마무리해주세요.`;
+각 섹션을 간결하게 작성하고, 전체 응답을 완전히 마무리해주세요.`,
+      template.outputRules,
+      template.insufficientContext,
+    ];
 
-    if (template.outputRules) {
-      prompt += `\n\n${template.outputRules}`;
-    }
-
-    if (template.insufficientContext) {
-      prompt += `\n\n${template.insufficientContext}`;
-    }
+    const prompt = promptParts.filter(Boolean).join('\n\n');
 
     return prompt;
   }
@@ -121,29 +114,22 @@ export class PromptTemplateService implements PromptInfoService {
 
     const remainingTimeText = remainingTime || '남은 시간 정보가 없습니다';
 
-    let prompt = template.personaAndStyle;
-
-    if (template.webSearchProtocol) {
-      prompt += `\n\n${template.webSearchProtocol}`;
-    }
-
-    prompt += `\n\n사용자 정보:
+    const promptParts = [
+      template.personaAndStyle,
+      template.webSearchProtocol,
+      `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 과거 투두: ${pastTodosText}
 과거 회고: ${pastRetrospectsText}
 완료된 투두: ${completedTodosText}
 이전 주간 목표: ${pastWeeklyGoalsText}
-남은 시간: ${remainingTimeText}`;
+남은 시간: ${remainingTimeText}`,
+      `\n\n위 정보를 바탕으로 이번 주에 달성할 수 있는 구체적이고 실행 가능한 목표를 추천해주세요.`,
+      template.outputRules,
+      template.insufficientContext,
+    ];
 
-    prompt += `\n\n위 정보를 바탕으로 이번 주에 달성할 수 있는 구체적이고 실행 가능한 목표를 추천해주세요.`;
-
-    if (template.outputRules) {
-      prompt += `\n\n${template.outputRules}`;
-    }
-
-    if (template.insufficientContext) {
-      prompt += `\n\n${template.insufficientContext}`;
-    }
+    const prompt = promptParts.filter(Boolean).join('\n\n');
 
     return prompt;
   }

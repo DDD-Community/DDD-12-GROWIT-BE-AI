@@ -12,4 +12,7 @@ export interface GoalRecommendationRepository {
   ): Promise<GoalRecommendationAggregate[]>;
   delete(id: string): Promise<void>;
   deleteByUid(uid: string): Promise<boolean>;
+  findLatestByUserId(
+    userId: string,
+  ): Promise<GoalRecommendationAggregate | null>;
 }
