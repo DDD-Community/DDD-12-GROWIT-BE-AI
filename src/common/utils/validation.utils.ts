@@ -3,7 +3,42 @@ export interface ValidationResult {
   errors: string[];
 }
 
+export interface AdviceStructure {
+  keep: string;
+  try: string;
+  problem: string;
+}
+
+export interface StructuredAdviceResponse {
+  keep: string;
+  try: string;
+  problem: string;
+}
+
 export class ValidationUtils {
+  private static extractJsonFromResponse(response: string): string {
+    let jsonString = response.trim();
+
+    if (jsonString.includes('```json')) {
+      const start = jsonString.indexOf('```json') + 7;
+      const end = jsonString.indexOf('```', start);
+      if (end !== -1) {
+        jsonString = jsonString.substring(start, end).trim();
+      }
+    } else if (jsonString.includes('```')) {
+      const start = jsonString.indexOf('```') + 3;
+      const end = jsonString.indexOf('```', start);
+      if (end !== -1) {
+        jsonString = jsonString.substring(start, end).trim();
+      }
+    } else if (jsonString.includes('{') && jsonString.includes('}')) {
+      const start = jsonString.indexOf('{');
+      const end = jsonString.lastIndexOf('}') + 1;
+      jsonString = jsonString.substring(start, end);
+    }
+
+    return jsonString;
+  }
   static isValidAdviceResponse(response: string): boolean {
     if (
       !response ||
@@ -28,6 +63,68 @@ export class ValidationUtils {
     return hasContent;
   }
 
+  static isValidStructuredAdviceResponse(response: string): boolean {
+    if (!response || typeof response !== 'string') {
+      return false;
+    }
+
+    try {
+      const jsonString = this.extractJsonFromResponse(response);
+      const parsed = JSON.parse(jsonString);
+
+      const { keep, try: tryValue, problem } = parsed;
+
+      if (!keep || !tryValue || !problem) {
+        return false;
+      }
+
+      if (
+        typeof keep !== 'string' ||
+        typeof tryValue !== 'string' ||
+        typeof problem !== 'string'
+      ) {
+        return false;
+      }
+
+      if (
+        keep.trim().length < 5 ||
+        tryValue.trim().length < 5 ||
+        problem.trim().length < 5
+      ) {
+        return false;
+      }
+
+      if (
+        keep.trim().length > 500 ||
+        tryValue.trim().length > 500 ||
+        problem.trim().length > 500
+      ) {
+        return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static parseStructuredAdviceResponse(
+    response: string,
+  ): StructuredAdviceResponse | null {
+    try {
+      const jsonString = this.extractJsonFromResponse(response);
+      const parsed = JSON.parse(jsonString);
+
+      if (!this.isValidStructuredAdviceResponse(jsonString)) {
+        return null;
+      }
+
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
   static isValidGoalResponse(response: string): boolean {
     if (
       !response ||
@@ -39,7 +136,7 @@ export class ValidationUtils {
 
     const trimmed = response.trim();
 
-    return trimmed.length >= 5 && trimmed.length <= 200;
+    return trimmed.length >= 5 && trimmed.length <= 1000;
   }
 
   static sanitizeResponse(response: string): string {

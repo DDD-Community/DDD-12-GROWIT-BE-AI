@@ -4,6 +4,7 @@ import { AiModule } from '../ai/ai.module';
 import { GoalRecommenderService } from '../ai/application/services/goal-recommender.service';
 import { GenerateGoalRecommendationUseCase } from './application/use-cases/generate-goal-recommendation.use-case';
 import { GoalRecommendationDomainService } from './domain/services/goal-recommendation.domain.service';
+import { GoalTemplateDomainService } from './domain/services/goal-template.domain.service';
 import { GoalRecommendationTypeOrmEntity } from './infrastructure/entities/goal-recommendation.entity';
 import { GoalRecommendationTypeOrmRepository } from './infrastructure/repositories/goal-recommendation-typeorm.repository';
 import { GoalRecommendationController } from './presentation/controllers/goal-recommendation.controller';
@@ -17,6 +18,7 @@ import { GoalRecommendationController } from './presentation/controllers/goal-re
   providers: [
     GenerateGoalRecommendationUseCase,
     GoalRecommendationDomainService,
+    GoalTemplateDomainService,
     {
       provide: 'GoalRecommendationRepository',
       useClass: GoalRecommendationTypeOrmRepository,

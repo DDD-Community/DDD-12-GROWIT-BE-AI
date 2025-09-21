@@ -1,3 +1,5 @@
+import { AdviceAggregate } from '../../domain/advice.domain';
+
 export class GenerateAdviceCommand {
   constructor(
     public readonly userId: string,
@@ -8,4 +10,10 @@ export class GenerateAdviceCommand {
     public readonly overallGoal: string,
     public readonly templateUid?: string,
   ) {}
+}
+
+export interface AdviceResult {
+  success: boolean;
+  entity: AdviceAggregate | null;
+  error?: string;
 }

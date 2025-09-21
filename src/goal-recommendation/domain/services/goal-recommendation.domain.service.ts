@@ -1,9 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GoalRecommender } from '../../../ai/application/services/goal-recommender.service';
 import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
-import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
 import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { GoalRecommendationAggregate } from '../goal-recommendation.domain';
+import { GoalRecommender } from './goal-recommender.interface';
 
 export interface GenerateGoalRecommendationCommand {
   userId: string;
@@ -100,19 +99,6 @@ export class GoalRecommendationDomainService {
         entity: null,
         error: error.message,
       };
-    }
-  }
-
-  private getFallbackGoal(mentorType: MentorType): string {
-    switch (mentorType) {
-      case MentorType['피터 레벨스']:
-        return '이번 주 프로젝트 진행하기';
-      case MentorType['젠슨 황']:
-        return '이번 주 꾸준히 학습하기';
-      case MentorType.워렌버핏:
-        return '이번 주 투자 공부하기';
-      default:
-        return '이번 주 목표 달성하기';
     }
   }
 }

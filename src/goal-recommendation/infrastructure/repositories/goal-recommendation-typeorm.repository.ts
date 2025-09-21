@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GoalRecommendationAggregate } from '../../domain/goal-recommendation.domain';
-import { GoalRecommendationRepository } from '../../domain/goal-recommendation.repository';
+import { GoalRecommendationRepository } from '../../domain/repositories/goal-recommendation.repository';
 import { GoalRecommendationTypeOrmEntity } from '../entities/goal-recommendation.entity';
 
 @Injectable()

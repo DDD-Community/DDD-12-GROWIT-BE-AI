@@ -52,26 +52,30 @@ export class PromptTemplateService implements PromptInfoService {
         ? weeklyRetrospects.join(', ')
         : '주간 회고가 없습니다';
 
-    let prompt = template.personaAndStyle;
-
-    if (template.webSearchProtocol) {
-      prompt += `\n\n${template.webSearchProtocol}`;
-    }
-
-    prompt += `\n\n사용자 정보:
+    const promptParts = [
+      template.personaAndStyle,
+      template.webSearchProtocol,
+      `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 완료된 투두: ${completedTodosText}
 진행 중인 투두: ${incompleteTodosText}
 이전 주간 목표: ${pastWeeklyGoalsText}
-주간 회고: ${weeklyRetrospectsText}`;
+주간 회고: ${weeklyRetrospectsText}`,
+      `\n\n위 정보를 바탕으로 KPT(Keep, Problem, Try) 형식으로 오늘의 조언을 제공해주세요.
 
-    if (template.outputRules) {
-      prompt += `\n\n${template.outputRules}`;
-    }
+반드시 다음 JSON 형식으로만 응답해주세요:
+{
+  "keep": "잘하고 있는 점이나 계속해야 할 것 (1-2문장)",
+  "try": "앞으로 시도해볼 새로운 방법이나 개선 방안 (1-2문장)",
+  "problem": "개선이 필요한 부분이나 해결해야 할 문제 (1-2문장)"
+}
 
-    if (template.insufficientContext) {
-      prompt += `\n\n${template.insufficientContext}`;
-    }
+JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,
+      template.outputRules,
+      template.insufficientContext,
+    ];
+
+    const prompt = promptParts.filter(Boolean).join('\n\n');
 
     return prompt;
   }
@@ -113,27 +117,22 @@ export class PromptTemplateService implements PromptInfoService {
 
     const remainingTimeText = remainingTime || '남은 시간 정보가 없습니다';
 
-    let prompt = template.personaAndStyle;
-
-    if (template.webSearchProtocol) {
-      prompt += `\n\n${template.webSearchProtocol}`;
-    }
-
-    prompt += `\n\n사용자 정보:
+    const promptParts = [
+      template.personaAndStyle,
+      template.webSearchProtocol,
+      `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 과거 투두: ${pastTodosText}
 과거 회고: ${pastRetrospectsText}
 완료된 투두: ${completedTodosText}
 이전 주간 목표: ${pastWeeklyGoalsText}
-남은 시간: ${remainingTimeText}`;
+남은 시간: ${remainingTimeText}`,
+      `\n\n위 정보를 바탕으로 이번 주에 달성할 수 있는 구체적이고 실행 가능한 목표를 추천해주세요.`,
+      template.outputRules,
+      template.insufficientContext,
+    ];
 
-    if (template.outputRules) {
-      prompt += `\n\n${template.outputRules}`;
-    }
-
-    if (template.insufficientContext) {
-      prompt += `\n\n${template.insufficientContext}`;
-    }
+    const prompt = promptParts.filter(Boolean).join('\n\n');
 
     return prompt;
   }

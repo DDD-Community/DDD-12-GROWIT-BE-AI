@@ -9,4 +9,5 @@ export interface AdviceRepository {
   findAll(limit?: number, offset?: number): Promise<AdviceAggregate[]>;
   delete(id: string): Promise<void>;
   deleteByUid(uid: string): Promise<boolean>;
+  findLatestByUserId(userId: string): Promise<AdviceAggregate | null>;
 }

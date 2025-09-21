@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { ValidationUtils } from '../../../common/utils';
 import { OPENAI_CONFIG, getOpenAIApiKey } from '../../../config/openai.config';
+import { StructuredAdviceResponseDto } from '../../dto';
 
 @Injectable()
 export class OpenAIService {
@@ -16,7 +17,7 @@ export class OpenAIService {
     });
   }
 
-  async generateAdvice(prompt: string): Promise<string> {
+  async generateAdvice(prompt: string): Promise<StructuredAdviceResponseDto> {
     try {
       this.logger.debug(
         `Generating advice with prompt: ${prompt.substring(0, 100)}...`,
@@ -36,12 +37,22 @@ export class OpenAIService {
 
       const sanitized = ValidationUtils.sanitizeResponse(content);
 
-      if (!ValidationUtils.isValidAdviceResponse(sanitized)) {
-        this.logger.warn(`Invalid advice response format: ${sanitized}`);
-        throw new Error('Generated advice does not meet format requirements');
+      if (!ValidationUtils.isValidStructuredAdviceResponse(sanitized)) {
+        this.logger.warn(
+          `Invalid structured advice response format: ${sanitized}`,
+        );
+        throw new Error(
+          'Generated advice does not meet structured format requirements',
+        );
       }
 
-      return sanitized;
+      const parsedResponse =
+        ValidationUtils.parseStructuredAdviceResponse(sanitized);
+      if (!parsedResponse) {
+        throw new Error('Failed to parse structured advice response');
+      }
+
+      return parsedResponse;
     } catch (error) {
       this.logger.error('Failed to generate advice:', error.message);
       throw error;
@@ -57,7 +68,7 @@ export class OpenAIService {
       const response = await this.openai.chat.completions.create({
         model: OPENAI_CONFIG.model,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 150,
+        max_tokens: OPENAI_CONFIG.maxTokens,
         temperature: OPENAI_CONFIG.temperature,
       });
 

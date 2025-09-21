@@ -47,7 +47,11 @@ export class GenerateAdviceResponseDto {
   userId: string;
   promptId: string;
   id?: string;
-  output: string | null;
+  output: {
+    keep: string;
+    try: string;
+    problem: string;
+  } | null;
   generatedAt: Date | null;
   error?: string;
 }
@@ -67,8 +71,11 @@ export class AdviceResponseDto {
 
   input: GenerateAdviceInputDto;
 
-  @IsString()
-  output: string;
+  output: {
+    keep: string;
+    try: string;
+    problem: string;
+  };
 
   @IsDate()
   createdAt: Date;
@@ -87,8 +94,11 @@ export class AdviceSummaryDto {
   @IsString()
   promptId: string;
 
-  @IsString()
-  output: string;
+  output: {
+    keep: string;
+    try: string;
+    problem: string;
+  };
 
   @IsDate()
   createdAt: Date;

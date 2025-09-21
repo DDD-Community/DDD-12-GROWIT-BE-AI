@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OpenAIService } from '../../../ai/application/services/openai.service';
-import { PromptTemplateService } from '../../../ai/application/services/prompt-template.service';
-import { TemplateBasedGeneratorService } from '../../../ai/application/services/template-based-generator.service';
+import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
 import { AdviceAggregate } from '../../domain/advice.domain';
-import { AdviceRepository } from '../../domain/advice.repository';
+import { AdviceRepository } from '../../domain/repositories/advice.repository';
+import { AdviceTemplateDomainService } from '../../domain/services/advice-template.domain.service';
 import { AdviceDomainService } from '../../domain/services/advice.domain.service';
 import { GenerateAdviceCommand } from '../commands/generate-advice.command';
 
@@ -22,9 +22,10 @@ export class GenerateAdviceUseCase {
     @Inject('AdviceRepository')
     private readonly adviceRepository: AdviceRepository,
     private readonly adviceDomainService: AdviceDomainService,
-    private readonly promptTemplateService: PromptTemplateService,
+    private readonly adviceTemplateService: AdviceTemplateDomainService,
+    @Inject('PromptInfoService')
+    private readonly promptTemplateService: PromptInfoService,
     private readonly openaiService: OpenAIService,
-    private readonly templateBasedGenerator: TemplateBasedGeneratorService,
   ) {}
 
   async execute(command: GenerateAdviceCommand): Promise<GenerateAdviceResult> {
@@ -33,21 +34,18 @@ export class GenerateAdviceUseCase {
     );
 
     try {
-      let domainResult: GenerateAdviceResult;
-
-      if (command.templateUid) {
-        domainResult = await this.generateWithTemplate(command);
-      } else {
-        domainResult = await this.adviceDomainService.generateAdvice({
-          userId: command.userId,
-          promptId: command.promptId,
-          input: {
-            recentTodos: command.recentTodos,
-            weeklyRetrospects: command.weeklyRetrospects,
-            overallGoal: command.overallGoal,
-          },
-        });
-      }
+      // 1. Domain Service를 통해 비즈니스 로직 실행
+      const domainResult = command.templateUid
+        ? await this.adviceTemplateService.generateWithTemplate(command)
+        : await this.adviceDomainService.generateAdvice({
+            userId: command.userId,
+            promptId: command.promptId,
+            input: {
+              recentTodos: command.recentTodos,
+              weeklyRetrospects: command.weeklyRetrospects,
+              overallGoal: command.overallGoal,
+            },
+          });
 
       if (!domainResult.success) {
         this.logger.error(
@@ -56,6 +54,7 @@ export class GenerateAdviceUseCase {
         return domainResult;
       }
 
+      // 2. Repository를 통해 영속성 처리
       await this.adviceRepository.save(domainResult.entity);
 
       this.logger.log(
@@ -77,79 +76,6 @@ export class GenerateAdviceUseCase {
         error: `AI service failed: ${error.message}`,
       };
     }
-  }
-
-  private async generateWithTemplate(
-    command: GenerateAdviceCommand,
-  ): Promise<GenerateAdviceResult> {
-    try {
-      const template = await this.promptTemplateService.getTemplateByUid(
-        command.templateUid!,
-      );
-      if (!template) {
-        return {
-          success: false,
-          entity: null,
-          error: `Template with UID ${command.templateUid} not found`,
-        };
-      }
-
-      const adviceEntity = AdviceAggregate.create(
-        command.userId,
-        command.promptId,
-        command.mentorType,
-        command.recentTodos,
-        command.weeklyRetrospects,
-        command.overallGoal,
-      );
-
-      const basePrompt = template.generateFullPrompt();
-      const contextualPrompt = this.buildContextualPrompt(
-        basePrompt,
-        command.mentorType,
-        command.recentTodos,
-        command.weeklyRetrospects,
-        command.overallGoal,
-      );
-
-      const generatedAdvice =
-        await this.openaiService.generateAdvice(contextualPrompt);
-
-      adviceEntity.updateOutput(generatedAdvice);
-
-      return {
-        success: true,
-        entity: adviceEntity,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        entity: null,
-        error: error.message,
-      };
-    }
-  }
-
-  private buildContextualPrompt(
-    basePrompt: string,
-    mentorType: string,
-    recentTodos: string[],
-    weeklyRetrospects: string[],
-    overallGoal: string,
-  ): string {
-    const context = `
-사용자 정보:
-- 멘토 타입: ${mentorType}
-- 최근 할 일: ${recentTodos.join(', ')}
-- 주간 회고: ${weeklyRetrospects.join(', ')}
-- 전체 목표: ${overallGoal}
-
-${basePrompt}
-
-위 정보를 바탕으로 ${mentorType} 멘토의 관점에서 조언을 제공해주세요.
-`;
-
-    return context;
   }
 
   async getAdvice(uid: string): Promise<AdviceAggregate | null> {
