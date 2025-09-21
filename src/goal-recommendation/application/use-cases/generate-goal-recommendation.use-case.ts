@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { OpenAIService } from '../../../ai/services/openai.service';
-import { PromptTemplateService } from '../../../ai/services/prompt-template.service';
+import { OpenAIService } from '../../../ai/application/services/openai.service';
+import { PromptTemplateService } from '../../../ai/application/services/prompt-template.service';
 import { GoalRecommendationAggregate } from '../../domain/goal-recommendation.domain';
 import { GoalRecommendationRepository } from '../../domain/goal-recommendation.repository';
 import { GoalRecommendationDomainService } from '../../domain/services/goal-recommendation.domain.service';
-import { MentorTypeVO } from '../../domain/value-objects';
 import { GenerateGoalRecommendationCommand } from '../commands/generate-goal-recommendation.command';
 
 export interface GenerateGoalRecommendationResult {
   success: boolean;
   entity: GoalRecommendationAggregate | null;
+  id?: string;
   error?: string;
 }
 
@@ -29,29 +29,18 @@ export class GenerateGoalRecommendationUseCase {
     command: GenerateGoalRecommendationCommand,
   ): Promise<GenerateGoalRecommendationResult> {
     this.logger.log(
-      `Generating goal recommendation for user ${command.userId} with mentor ${command.mentorType}`,
+      `Generating goal recommendation for user ${command.userId} with promptId ${command.promptId}`,
     );
 
     try {
       let domainResult: GenerateGoalRecommendationResult;
 
-      // 템플릿이 제공된 경우 템플릿 기반 생성
       if (command.templateUid) {
         domainResult = await this.generateWithTemplate(command);
       } else {
-        // 기존 도메인 서비스 호출
         domainResult =
           await this.goalRecommendationDomainService.generateGoalRecommendation(
-            {
-              userId: command.userId,
-              promptId: command.promptId,
-              input: {
-                mentorType: MentorTypeVO.create(command.mentorType),
-                pastTodos: command.pastTodos,
-                pastRetrospects: command.pastRetrospects,
-                overallGoal: command.overallGoal,
-              },
-            },
+            command,
           );
       }
 
@@ -62,20 +51,21 @@ export class GenerateGoalRecommendationUseCase {
         return domainResult;
       }
 
-      // 엔티티 저장
       await this.goalRecommendationRepository.save(domainResult.entity);
 
       this.logger.log(
-        `Successfully generated goal recommendation for user ${command.userId}`,
+        `Successfully generated goal recommendation for user ${command.userId} with ID: ${domainResult.entity.uid}`,
       );
 
-      return domainResult;
+      return {
+        ...domainResult,
+        id: domainResult.entity.uid,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to generate goal recommendation for user ${command.userId}: ${error.message}`,
       );
 
-      // AI 실패 시 에러 응답 반환 (엔티티 저장하지 않음)
       return {
         success: false,
         entity: null,
@@ -88,8 +78,7 @@ export class GenerateGoalRecommendationUseCase {
     command: GenerateGoalRecommendationCommand,
   ): Promise<GenerateGoalRecommendationResult> {
     try {
-      // 1. 템플릿 조회
-      const template = await this.promptTemplateService.getTemplate(
+      const template = await this.promptTemplateService.getTemplateByUid(
         command.templateUid!,
       );
       if (!template) {
@@ -100,31 +89,27 @@ export class GenerateGoalRecommendationUseCase {
         };
       }
 
-      // 2. 목표 추천 엔티티 생성
       const goalRecommendationEntity = GoalRecommendationAggregate.create(
         command.userId,
         command.promptId,
-        command.mentorType,
+        template.name,
         command.pastTodos,
         command.pastRetrospects,
         command.overallGoal,
       );
 
-      // 3. 템플릿을 기반으로 프롬프트 생성
       const basePrompt = template.generateFullPrompt();
       const contextualPrompt = this.buildContextualPrompt(
         basePrompt,
-        command.mentorType,
+        template.name,
         command.pastTodos,
         command.pastRetrospects,
         command.overallGoal,
       );
 
-      // 4. OpenAI API 호출
       const generatedGoal =
         await this.openaiService.generateGoal(contextualPrompt);
 
-      // 5. 엔티티에 결과 업데이트
       goalRecommendationEntity.updateOutput(generatedGoal);
 
       return {
@@ -166,6 +151,12 @@ ${basePrompt}
     uid: string,
   ): Promise<GoalRecommendationAggregate | null> {
     return await this.goalRecommendationRepository.findById(uid);
+  }
+
+  async getLatestGoalRecommendationByUserId(
+    userId: string,
+  ): Promise<GoalRecommendationAggregate | null> {
+    return await this.goalRecommendationRepository.findLatestByUserId(userId);
   }
 
   async listGoalRecommendations(): Promise<GoalRecommendationAggregate[]> {

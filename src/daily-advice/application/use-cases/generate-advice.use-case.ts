@@ -1,15 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { OpenAIService } from '../../../ai/services/openai.service';
-import { PromptTemplateService } from '../../../ai/services/prompt-template.service';
+import { OpenAIService } from '../../../ai/application/services/openai.service';
+import { PromptTemplateService } from '../../../ai/application/services/prompt-template.service';
+import { TemplateBasedGeneratorService } from '../../../ai/application/services/template-based-generator.service';
 import { AdviceAggregate } from '../../domain/advice.domain';
 import { AdviceRepository } from '../../domain/advice.repository';
 import { AdviceDomainService } from '../../domain/services/advice.domain.service';
-import { MentorTypeVO } from '../../domain/value-objects';
 import { GenerateAdviceCommand } from '../commands/generate-advice.command';
 
 export interface GenerateAdviceResult {
   success: boolean;
   entity: AdviceAggregate | null;
+  id?: string;
   error?: string;
 }
 
@@ -23,6 +24,7 @@ export class GenerateAdviceUseCase {
     private readonly adviceDomainService: AdviceDomainService,
     private readonly promptTemplateService: PromptTemplateService,
     private readonly openaiService: OpenAIService,
+    private readonly templateBasedGenerator: TemplateBasedGeneratorService,
   ) {}
 
   async execute(command: GenerateAdviceCommand): Promise<GenerateAdviceResult> {
@@ -33,16 +35,13 @@ export class GenerateAdviceUseCase {
     try {
       let domainResult: GenerateAdviceResult;
 
-      // 템플릿이 제공된 경우 템플릿 기반 생성
       if (command.templateUid) {
         domainResult = await this.generateWithTemplate(command);
       } else {
-        // 기존 도메인 서비스 호출 (AI 생성 로직 포함)
         domainResult = await this.adviceDomainService.generateAdvice({
           userId: command.userId,
           promptId: command.promptId,
           input: {
-            mentorType: MentorTypeVO.create(command.mentorType),
             recentTodos: command.recentTodos,
             weeklyRetrospects: command.weeklyRetrospects,
             overallGoal: command.overallGoal,
@@ -57,20 +56,21 @@ export class GenerateAdviceUseCase {
         return domainResult;
       }
 
-      // 엔티티 저장
       await this.adviceRepository.save(domainResult.entity);
 
       this.logger.log(
-        `Successfully generated advice for user ${command.userId}`,
+        `Successfully generated advice for user ${command.userId} with ID: ${domainResult.entity.uid}`,
       );
 
-      return domainResult;
+      return {
+        ...domainResult,
+        id: domainResult.entity.uid,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to generate advice for user ${command.userId}: ${error.message}`,
       );
 
-      // AI 실패 시 에러 응답 반환 (엔티티 저장하지 않음)
       return {
         success: false,
         entity: null,
@@ -83,8 +83,7 @@ export class GenerateAdviceUseCase {
     command: GenerateAdviceCommand,
   ): Promise<GenerateAdviceResult> {
     try {
-      // 1. 템플릿 조회
-      const template = await this.promptTemplateService.getTemplate(
+      const template = await this.promptTemplateService.getTemplateByUid(
         command.templateUid!,
       );
       if (!template) {
@@ -95,7 +94,6 @@ export class GenerateAdviceUseCase {
         };
       }
 
-      // 2. 조언 엔티티 생성
       const adviceEntity = AdviceAggregate.create(
         command.userId,
         command.promptId,
@@ -105,7 +103,6 @@ export class GenerateAdviceUseCase {
         command.overallGoal,
       );
 
-      // 3. 템플릿을 기반으로 프롬프트 생성
       const basePrompt = template.generateFullPrompt();
       const contextualPrompt = this.buildContextualPrompt(
         basePrompt,
@@ -115,11 +112,9 @@ export class GenerateAdviceUseCase {
         command.overallGoal,
       );
 
-      // 4. OpenAI API 호출
       const generatedAdvice =
         await this.openaiService.generateAdvice(contextualPrompt);
 
-      // 5. 엔티티에 결과 업데이트
       adviceEntity.updateOutput(generatedAdvice);
 
       return {
@@ -159,6 +154,12 @@ ${basePrompt}
 
   async getAdvice(uid: string): Promise<AdviceAggregate | null> {
     return await this.adviceRepository.findById(uid);
+  }
+
+  async getLatestAdviceByUserId(
+    userId: string,
+  ): Promise<AdviceAggregate | null> {
+    return await this.adviceRepository.findLatestByUserId(userId);
   }
 
   async listAdvice(): Promise<AdviceAggregate[]> {

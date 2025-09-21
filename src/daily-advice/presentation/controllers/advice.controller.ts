@@ -10,11 +10,10 @@ import {
 import { GenerateAdviceCommand } from '../../application/commands/generate-advice.command';
 import { GenerateAdviceUseCase } from '../../application/use-cases/generate-advice.use-case';
 import {
-  AdviceResponseDto,
+  AdviceSummaryDto,
   DeleteAdviceResponseDto,
   GenerateAdviceRequestDto,
   GenerateAdviceResponseDto,
-  ListAdviceResponseDto,
 } from '../dto/generate-advice.dto';
 
 @Controller('daily-advice')
@@ -59,63 +58,32 @@ export class AdviceController {
       success: result.success,
       userId: request.userId,
       promptId: request.promptId,
+      id: result.id,
       output: result.entity.output,
       generatedAt: result.entity.createdAt,
       error: result.error,
     };
   }
 
-  @Get(':uid')
-  async getAdvice(@Param('uid') uid: string): Promise<AdviceResponseDto> {
-    this.logger.log('Getting advice:', uid);
+  @Get(':userId')
+  async getLatestAdviceByUserId(
+    @Param('userId') userId: string,
+  ): Promise<AdviceSummaryDto> {
+    this.logger.log('Getting latest advice for user:', userId);
 
-    const advice = await this.generateAdviceUseCase.getAdvice(uid);
+    const advice =
+      await this.generateAdviceUseCase.getLatestAdviceByUserId(userId);
     if (!advice) {
-      throw new Error(`Advice with UID ${uid} not found`);
+      throw new Error(`No advice found for user ${userId}`);
     }
 
     return {
       id: advice.id.toString(),
       uid: advice.uid,
-      userId: advice.userId.getValue(),
       promptId: advice.promptId,
-      input: {
-        mentorType: advice.input.mentorType.toString(),
-        recentTodos: advice.input.recentTodos,
-        weeklyRetrospects: advice.input.weeklyRetrospects,
-        overallGoal: advice.input.overallGoal,
-      },
       output: advice.output,
       createdAt: advice.createdAt,
       updatedAt: advice.updatedAt,
-    };
-  }
-
-  @Get()
-  async listAdvice(): Promise<ListAdviceResponseDto> {
-    this.logger.log('Listing all advice');
-
-    const adviceList = await this.generateAdviceUseCase.listAdvice();
-
-    const adviceResponseList = adviceList.map((advice) => ({
-      id: advice.id.toString(),
-      uid: advice.uid,
-      userId: advice.userId.getValue(),
-      promptId: advice.promptId,
-      input: {
-        mentorType: advice.input.mentorType.toString(),
-        recentTodos: advice.input.recentTodos,
-        weeklyRetrospects: advice.input.weeklyRetrospects,
-        overallGoal: advice.input.overallGoal,
-      },
-      output: advice.output,
-      createdAt: advice.createdAt,
-      updatedAt: advice.updatedAt,
-    }));
-
-    return {
-      success: true,
-      advice: adviceResponseList,
     };
   }
 

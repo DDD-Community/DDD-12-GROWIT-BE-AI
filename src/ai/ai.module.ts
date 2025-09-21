@@ -1,39 +1,36 @@
-import { HttpModule, HttpService } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { SpringClientService } from '../external/spring-client.service';
 import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
+import { AdviceGeneratorService } from './application/services/advice-generator.service';
+import { GoalRecommenderService } from './application/services/goal-recommender.service';
+import { OpenAIService } from './application/services/openai.service';
+import { PromptBasedGeneratorService } from './application/services/prompt-based-generator.service';
+import { PromptTemplateService } from './application/services/prompt-template.service';
+import { TemplateBasedGeneratorService } from './application/services/template-based-generator.service';
 import { CreatePromptTemplateUseCase } from './application/use-cases/create-prompt-template.use-case';
 import { PromptTemplateController } from './controllers/prompt-template.controller';
-import { MentorFactory } from './domain/factories/mentor.factory';
 import { AIGeneratorRepository } from './domain/repositories/ai-generator.repository';
-import { SpringIntegrationRepository } from './domain/repositories/spring-integration.repository';
+import { PromptTemplateDomainServiceImpl } from './domain/services/prompt-template.domain.service';
 import { PromptTemplateEntity } from './infrastructure/entities/prompt-template.entity';
-import { MockSpringRepository } from './infrastructure/mock-spring.repository';
 import { OpenAIGeneratorRepository } from './infrastructure/openai-generator.repository';
 import { PromptTemplateTypeOrmRepository } from './infrastructure/repositories/prompt-template-typeorm.repository';
-import { SpringIntegrationRepositoryImpl } from './infrastructure/spring-integration.repository';
-import { AdviceGeneratorService } from './services/advice-generator.service';
-import { GoalRecommenderService } from './services/goal-recommender.service';
-import { OpenAIService } from './services/openai.service';
-import { PromptTemplateService } from './services/prompt-template.service';
 
 @Module({
   imports: [
     ConfigModule,
-    HttpModule,
     ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([PromptTemplateEntity]),
   ],
   controllers: [PromptTemplateController],
   providers: [
-    MentorFactory,
     OpenAIService,
     AdviceGeneratorService,
     GoalRecommenderService,
+    PromptBasedGeneratorService,
+    TemplateBasedGeneratorService,
     {
       provide: AIGeneratorRepository,
       useClass: OpenAIGeneratorRepository,
@@ -43,30 +40,27 @@ import { PromptTemplateService } from './services/prompt-template.service';
       useClass: PromptTemplateTypeOrmRepository,
     },
     {
-      provide: SpringIntegrationRepository,
-      useFactory: (httpService, configService) => {
-        const isTestMode =
-          process.env.NODE_ENV === 'test' ||
-          process.env.USE_MOCK_SPRING === 'true';
-        return isTestMode
-          ? new MockSpringRepository()
-          : new SpringIntegrationRepositoryImpl(httpService, configService);
-      },
-      inject: [HttpService, ConfigService],
+      provide: 'PromptInfoService',
+      useClass: PromptTemplateService,
     },
-    SpringClientService,
+    {
+      provide: 'PromptTemplateDomainService',
+      useClass: PromptTemplateDomainServiceImpl,
+    },
     DailyAdviceScheduler,
     PromptTemplateService,
     CreatePromptTemplateUseCase,
   ],
   exports: [
     AIGeneratorRepository,
-    SpringIntegrationRepository,
     DailyAdviceScheduler,
     PromptTemplateService,
+    'PromptInfoService',
     OpenAIService,
     AdviceGeneratorService,
     GoalRecommenderService,
+    PromptBasedGeneratorService,
+    TemplateBasedGeneratorService,
   ],
 })
 export class AiModule {}

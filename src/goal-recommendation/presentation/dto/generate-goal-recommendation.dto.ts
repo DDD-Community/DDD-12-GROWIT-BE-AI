@@ -12,10 +12,6 @@ import {
 } from 'class-validator';
 
 export class GoalRecommendationInputDto {
-  @IsString()
-  @IsNotEmpty()
-  mentorType: string;
-
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1, { message: 'pastTodos must contain at least one item' })
@@ -32,6 +28,20 @@ export class GoalRecommendationInputDto {
   @IsNotEmpty()
   @MinLength(10, { message: 'overallGoal must be at least 10 characters long' })
   overallGoal: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  completedTodos?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  pastWeeklyGoals?: string[];
+
+  @IsOptional()
+  @IsString()
+  remainingTime?: string;
 }
 
 export class GenerateGoalRecommendationRequestDto {
@@ -64,6 +74,10 @@ export class GenerateGoalRecommendationResponseDto {
 
   @IsOptional()
   @IsString()
+  id?: string;
+
+  @IsOptional()
+  @IsString()
   output: string | null;
 
   @IsOptional()
@@ -75,7 +89,6 @@ export class GenerateGoalRecommendationResponseDto {
   error?: string;
 }
 
-// 목표 추천 조회용 DTO
 export class GoalRecommendationResponseDto {
   @IsString()
   id: string;
@@ -90,6 +103,26 @@ export class GoalRecommendationResponseDto {
   promptId: string;
 
   input: GoalRecommendationInputDto;
+
+  @IsString()
+  output: string;
+
+  @IsDate()
+  createdAt: Date;
+
+  @IsDate()
+  updatedAt: Date;
+}
+
+export class GoalRecommendationSummaryDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  uid: string;
+
+  @IsString()
+  promptId: string;
 
   @IsString()
   output: string;

@@ -32,9 +32,9 @@ import { GoalRecommendationModule } from './goal-recommendation/goal-recommendat
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
+    AiModule,
     GoalRecommendationModule,
     DailyAdviceModule,
-    AiModule, // 템플릿 관리 등 남은 기능들
   ],
   controllers: [],
   providers: [],

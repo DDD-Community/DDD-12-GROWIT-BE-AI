@@ -5,23 +5,15 @@ export class CreatePromptTemplateRequestDto {
   name: string;
 
   @IsString()
-  personaAndStyle: string;
-
-  @IsString()
-  outputRules: string;
-
-  @IsString()
-  insufficientContext: string;
-}
-
-export class UpdatePromptTemplateRequestDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
+  type: string;
 
   @IsOptional()
   @IsString()
   personaAndStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  webSearchProtocol?: string;
 
   @IsOptional()
   @IsString()
@@ -34,7 +26,7 @@ export class UpdatePromptTemplateRequestDto {
 
 export class PromptTemplateResponseDto {
   @IsString()
-  id: string; // 실제로는 uid 값
+  id: string;
 
   @IsString()
   uid: string;
@@ -43,7 +35,13 @@ export class PromptTemplateResponseDto {
   name: string;
 
   @IsString()
+  type: string;
+
+  @IsString()
   personaAndStyle: string;
+
+  @IsString()
+  webSearchProtocol: string;
 
   @IsString()
   outputRules: string;
