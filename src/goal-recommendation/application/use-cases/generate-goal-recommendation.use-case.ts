@@ -4,7 +4,6 @@ import { PromptTemplateService } from '../../../ai/services/prompt-template.serv
 import { GoalRecommendationAggregate } from '../../domain/goal-recommendation.domain';
 import { GoalRecommendationRepository } from '../../domain/goal-recommendation.repository';
 import { GoalRecommendationDomainService } from '../../domain/services/goal-recommendation.domain.service';
-import { MentorTypeVO } from '../../domain/value-objects';
 import { GenerateGoalRecommendationCommand } from '../commands/generate-goal-recommendation.command';
 
 export interface GenerateGoalRecommendationResult {
@@ -29,7 +28,7 @@ export class GenerateGoalRecommendationUseCase {
     command: GenerateGoalRecommendationCommand,
   ): Promise<GenerateGoalRecommendationResult> {
     this.logger.log(
-      `Generating goal recommendation for user ${command.userId} with mentor ${command.mentorType}`,
+      `Generating goal recommendation for user ${command.userId} with promptId ${command.promptId}`,
     );
 
     try {
@@ -42,16 +41,7 @@ export class GenerateGoalRecommendationUseCase {
         // 기존 도메인 서비스 호출
         domainResult =
           await this.goalRecommendationDomainService.generateGoalRecommendation(
-            {
-              userId: command.userId,
-              promptId: command.promptId,
-              input: {
-                mentorType: MentorTypeVO.create(command.mentorType),
-                pastTodos: command.pastTodos,
-                pastRetrospects: command.pastRetrospects,
-                overallGoal: command.overallGoal,
-              },
-            },
+            command,
           );
       }
 
@@ -100,11 +90,11 @@ export class GenerateGoalRecommendationUseCase {
         };
       }
 
-      // 2. 목표 추천 엔티티 생성
+      // 2. 목표 추천 엔티티 생성 (멘토 타입은 템플릿에서 추출)
       const goalRecommendationEntity = GoalRecommendationAggregate.create(
         command.userId,
         command.promptId,
-        command.mentorType,
+        template.name, // 템플릿의 name을 멘토 타입으로 사용
         command.pastTodos,
         command.pastRetrospects,
         command.overallGoal,
@@ -114,7 +104,7 @@ export class GenerateGoalRecommendationUseCase {
       const basePrompt = template.generateFullPrompt();
       const contextualPrompt = this.buildContextualPrompt(
         basePrompt,
-        command.mentorType,
+        template.name, // 템플릿의 name을 멘토 타입으로 사용
         command.pastTodos,
         command.pastRetrospects,
         command.overallGoal,

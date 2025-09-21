@@ -18,6 +18,9 @@ export interface GoalRecommendationInput {
   pastTodos: string[];
   pastRetrospects: string[];
   overallGoal: string;
+  completedTodos?: string[];
+  pastWeeklyGoals?: string[];
+  remainingTime?: string;
 }
 
 // Aggregate Root
@@ -31,6 +34,9 @@ export class GoalRecommendationAggregate {
     pastTodos: string[],
     pastRetrospects: string[],
     overallGoal: string,
+    completedTodos?: string[],
+    pastWeeklyGoals?: string[],
+    remainingTime?: string,
   ): GoalRecommendationAggregate {
     const now = new Date();
     return new GoalRecommendationAggregate({
@@ -43,6 +49,9 @@ export class GoalRecommendationAggregate {
         pastTodos,
         pastRetrospects,
         overallGoal,
+        completedTodos,
+        pastWeeklyGoals,
+        remainingTime,
       },
       output: '',
       createdAt: now,

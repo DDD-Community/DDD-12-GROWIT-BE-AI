@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { OPENAI_CONFIG, getOpenAIApiKey } from '../../config/openai.config';
 import { ValidationUtils } from '../../common/utils';
+import { OPENAI_CONFIG, getOpenAIApiKey } from '../../config/openai.config';
 
 @Injectable()
 export class OpenAIService {
@@ -57,7 +57,7 @@ export class OpenAIService {
       const response = await this.openai.chat.completions.create({
         model: OPENAI_CONFIG.model,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 50,
+        max_tokens: 150,
         temperature: OPENAI_CONFIG.temperature,
       });
 

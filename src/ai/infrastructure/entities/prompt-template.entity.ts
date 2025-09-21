@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('prompt_template')
+@Unique(['name', 'type'])
 export class PromptTemplateEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,8 +21,14 @@ export class PromptTemplateEntity {
   @Column()
   name: string;
 
+  @Column()
+  type: string;
+
   @Column('text')
   personaAndStyle: string;
+
+  @Column('text')
+  webSearchProtocol: string;
 
   @Column('text')
   outputRules: string;

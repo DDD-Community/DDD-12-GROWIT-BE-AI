@@ -33,20 +33,31 @@ export class PromptTemplateTypeOrmRepository
     return entity ? this.toDomain(entity) : null;
   }
 
+  async findByNameAndType(
+    name: string,
+    type: string,
+  ): Promise<PromptTemplate | null> {
+    const entity = await this.repository.findOne({
+      where: { name, type },
+    });
+    return entity ? this.toDomain(entity) : null;
+  }
+
   async findAll(): Promise<PromptTemplate[]> {
     const entities = await this.repository.find();
     return entities.map((entity) => this.toDomain(entity));
   }
 
   async upsert(template: PromptTemplate): Promise<PromptTemplate> {
-    // name으로 기존 템플릿 찾기
+    // name과 type으로 기존 템플릿 찾기
     const existingEntity = await this.repository.findOne({
-      where: { name: template.name },
+      where: { name: template.name, type: template.type },
     });
 
     if (existingEntity) {
       // 기존 템플릿이 있으면 업데이트
       existingEntity.personaAndStyle = template.personaAndStyle;
+      existingEntity.webSearchProtocol = template.webSearchProtocol;
       existingEntity.outputRules = template.outputRules;
       existingEntity.insufficientContext = template.insufficientContext;
       existingEntity.updatedAt = new Date();
@@ -71,7 +82,9 @@ export class PromptTemplateTypeOrmRepository
     // id는 데이터베이스에서 자동 생성되므로 설정하지 않음
     entity.uid = domain.uid;
     entity.name = domain.name;
+    entity.type = domain.type;
     entity.personaAndStyle = domain.personaAndStyle;
+    entity.webSearchProtocol = domain.webSearchProtocol;
     entity.outputRules = domain.outputRules;
     entity.insufficientContext = domain.insufficientContext;
     entity.createdAt = domain.createdAt;
@@ -82,7 +95,9 @@ export class PromptTemplateTypeOrmRepository
   private toDomain(entity: PromptTemplateEntity): PromptTemplate {
     return new PromptTemplateDomain(
       entity.name,
+      entity.type,
       entity.personaAndStyle,
+      entity.webSearchProtocol,
       entity.outputRules,
       entity.insufficientContext,
       entity.uid, // id 필드에 uid 값 반환

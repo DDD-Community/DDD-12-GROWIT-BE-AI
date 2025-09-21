@@ -39,10 +39,12 @@ export class GoalRecommendationController {
     const command = new GenerateGoalRecommendationCommand(
       request.userId,
       request.promptId,
-      request.input.mentorType,
       request.input.pastTodos,
       request.input.pastRetrospects,
       request.input.overallGoal,
+      request.input.completedTodos,
+      request.input.pastWeeklyGoals,
+      request.input.remainingTime,
       request.templateUid,
     );
 
@@ -88,7 +90,6 @@ export class GoalRecommendationController {
       userId: goalRecommendation.userId.getValue(),
       promptId: goalRecommendation.promptId,
       input: {
-        mentorType: goalRecommendation.input.mentorType.toString(),
         pastTodos: goalRecommendation.input.pastTodos,
         pastRetrospects: goalRecommendation.input.pastRetrospects,
         overallGoal: goalRecommendation.input.overallGoal,

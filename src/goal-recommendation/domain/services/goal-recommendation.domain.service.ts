@@ -1,14 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
-import {
-  GoalRecommendationAggregate,
-  GoalRecommendationInput,
-} from '../goal-recommendation.domain';
+import { GoalRecommender } from '../../../ai/services/goal-recommender.service';
+import { PromptTemplateService } from '../../../ai/services/prompt-template.service';
+import { GoalRecommendationAggregate } from '../goal-recommendation.domain';
 
 export interface GenerateGoalRecommendationCommand {
   userId: string;
   promptId: string;
-  input: GoalRecommendationInput;
+  pastTodos: string[];
+  pastRetrospects: string[];
+  overallGoal: string;
+  completedTodos?: string[];
+  pastWeeklyGoals?: string[];
+  remainingTime?: string;
+  templateUid?: string;
 }
 
 export interface GoalRecommendationResult {
@@ -17,38 +22,54 @@ export interface GoalRecommendationResult {
   error?: string;
 }
 
-export interface GoalRecommender {
-  recommendGoal(
-    mentorType: MentorType,
-    pastTodos: string[],
-    pastRetrospects: string[],
-    overallGoal: string,
-  ): Promise<string>;
-}
-
 @Injectable()
 export class GoalRecommendationDomainService {
   constructor(
     @Inject('GoalRecommender')
     private readonly goalRecommender: GoalRecommender,
+    private readonly promptTemplateService: PromptTemplateService,
   ) {}
 
   async generateGoalRecommendation(
     command: GenerateGoalRecommendationCommand,
   ): Promise<GoalRecommendationResult> {
     try {
-      // 도메인 비즈니스 로직
+      // promptId를 통해 프롬프트 정보 조회
+      const promptInfo =
+        await this.promptTemplateService.getPromptInfoByPromptId(
+          command.promptId,
+        );
+
+      if (!promptInfo) {
+        return {
+          success: false,
+          entity: null,
+          error: `Prompt template not found for promptId: ${command.promptId}`,
+        };
+      }
+
+      if (!promptInfo.mentorType) {
+        return {
+          success: false,
+          entity: null,
+          error: `Cannot extract mentor type from promptId: ${command.promptId}`,
+        };
+      }
+
       const entity = GoalRecommendationAggregate.create(
         command.userId,
         command.promptId,
-        command.input.mentorType.toString(),
-        command.input.pastTodos,
-        command.input.pastRetrospects,
-        command.input.overallGoal,
+        promptInfo.mentorType,
+        command.pastTodos,
+        command.pastRetrospects,
+        command.overallGoal,
+        command.completedTodos,
+        command.pastWeeklyGoals,
+        command.remainingTime,
       );
 
       // 입력 검증
-      if (!this.validateInput(command.input)) {
+      if (!this.validateInput(command)) {
         return {
           success: false,
           entity,
@@ -57,13 +78,16 @@ export class GoalRecommendationDomainService {
       }
 
       // AI 목표 추천 생성
-      const mentorTypeValue = command.input.mentorType.getMentorType();
-      const recommendedGoal = await this.goalRecommender.recommendGoal(
-        mentorTypeValue,
-        command.input.pastTodos,
-        command.input.pastRetrospects,
-        command.input.overallGoal,
-      );
+      const recommendedGoal =
+        await this.goalRecommender.recommendGoalByPromptId(
+          command.promptId,
+          command.pastTodos,
+          command.pastRetrospects,
+          command.overallGoal,
+          command.completedTodos,
+          command.pastWeeklyGoals,
+          command.remainingTime,
+        );
       entity.updateOutput(recommendedGoal);
 
       return {
@@ -73,34 +97,26 @@ export class GoalRecommendationDomainService {
     } catch (error) {
       return {
         success: false,
-        entity: GoalRecommendationAggregate.create(
-          command.userId,
-          command.promptId,
-          command.input.mentorType.toString(),
-          command.input.pastTodos,
-          command.input.pastRetrospects,
-          command.input.overallGoal,
-        ),
+        entity: null,
         error: error.message,
       };
     }
   }
 
-  private validateInput(input: GoalRecommendationInput): boolean {
+  private validateInput(command: GenerateGoalRecommendationCommand): boolean {
     return (
-      input.mentorType &&
-      Array.isArray(input.pastTodos) &&
-      Array.isArray(input.pastRetrospects) &&
-      input.overallGoal &&
-      input.overallGoal.length > 0
+      Array.isArray(command.pastTodos) &&
+      Array.isArray(command.pastRetrospects) &&
+      command.overallGoal &&
+      command.overallGoal.length > 0
     );
   }
 
   private getFallbackGoal(mentorType: MentorType): string {
     switch (mentorType) {
-      case MentorType.팀쿡:
+      case MentorType['피터 레벨스']:
         return '이번 주 프로젝트 진행하기';
-      case MentorType.공자:
+      case MentorType['젠슨 황']:
         return '이번 주 꾸준히 학습하기';
       case MentorType.워렌버핏:
         return '이번 주 투자 공부하기';

@@ -4,7 +4,6 @@ import { PromptTemplateService } from '../../../ai/services/prompt-template.serv
 import { AdviceAggregate } from '../../domain/advice.domain';
 import { AdviceRepository } from '../../domain/advice.repository';
 import { AdviceDomainService } from '../../domain/services/advice.domain.service';
-import { MentorTypeVO } from '../../domain/value-objects';
 import { GenerateAdviceCommand } from '../commands/generate-advice.command';
 
 export interface GenerateAdviceResult {
@@ -42,7 +41,6 @@ export class GenerateAdviceUseCase {
           userId: command.userId,
           promptId: command.promptId,
           input: {
-            mentorType: MentorTypeVO.create(command.mentorType),
             recentTodos: command.recentTodos,
             weeklyRetrospects: command.weeklyRetrospects,
             overallGoal: command.overallGoal,

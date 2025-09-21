@@ -16,16 +16,14 @@ export class ValidationUtils {
     }
 
     // 최대 길이 검증 (너무 길면 안됨)
-    if (trimmed.length > 500) {
+    if (trimmed.length > 1000) {
       return false;
     }
 
-    // 문장 수 검증 (1-5문장 허용, 더 유연하게)
-    const sentences = response
-      .split(/[.!?]/)
-      .filter((s) => s && s.trim().length > 0);
+    // 기본적인 내용 검증 (한국어 또는 영어 텍스트가 있는지)
+    const hasContent = /[가-힣a-zA-Z]/.test(trimmed);
 
-    return sentences.length >= 1 && sentences.length <= 5;
+    return hasContent;
   }
 
   static isValidGoalResponse(response: string): boolean {
@@ -39,8 +37,8 @@ export class ValidationUtils {
 
     const trimmed = response.trim();
 
-    // 목표는 5-100자 사이로 설정 (더 현실적으로)
-    return trimmed.length >= 5 && trimmed.length <= 100;
+    // 목표는 5-200자 사이로 설정 (더 현실적으로)
+    return trimmed.length >= 5 && trimmed.length <= 200;
   }
 
   static sanitizeResponse(response: string): string {

@@ -5,23 +5,15 @@ export class CreatePromptTemplateRequestDto {
   name: string;
 
   @IsString()
-  personaAndStyle: string;
-
-  @IsString()
-  outputRules: string;
-
-  @IsString()
-  insufficientContext: string;
-}
-
-export class UpdatePromptTemplateRequestDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
+  type: string; // "조언" 또는 "목표추천"
 
   @IsOptional()
   @IsString()
   personaAndStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  webSearchProtocol?: string;
 
   @IsOptional()
   @IsString()
@@ -43,7 +35,13 @@ export class PromptTemplateResponseDto {
   name: string;
 
   @IsString()
+  type: string;
+
+  @IsString()
   personaAndStyle: string;
+
+  @IsString()
+  webSearchProtocol: string;
 
   @IsString()
   outputRules: string;
