@@ -19,7 +19,7 @@ export class GoalRecommenderService {
     overallGoal: string,
   ): Promise<string> {
     try {
-      const prompt = this.promptTemplateService.generateGoalPrompt(
+      const prompt = await this.promptTemplateService.generateGoalPrompt(
         mentorType,
         pastTodos,
         pastRetrospects,
@@ -36,20 +36,19 @@ export class GoalRecommenderService {
         error.message,
       );
 
-      const fallbackGoal = this.getDefaultGoal(mentorType);
+      const fallbackGoal = this.getSimpleFallback(mentorType);
       this.logger.warn(`Using fallback goal: ${fallbackGoal}`);
 
       return fallbackGoal;
     }
   }
 
-  private getDefaultGoal(mentorType: MentorType): string {
-    const defaultGoals = {
+  private getSimpleFallback(mentorType: MentorType): string {
+    const fallbacks = {
       [MentorType.팀쿡]: '이번 주 프로젝트 진행하기',
       [MentorType.공자]: '이번 주 꾸준히 학습하기',
       [MentorType.워렌버핏]: '이번 주 투자 공부하기',
     };
-
-    return defaultGoals[mentorType];
+    return fallbacks[mentorType];
   }
 }
