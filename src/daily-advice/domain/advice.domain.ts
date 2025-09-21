@@ -8,7 +8,11 @@ export interface AdviceProps {
   userId: UserId;
   promptId: string;
   input: AdviceInput;
-  output: string;
+  output: {
+    keep: string;
+    try: string;
+    problem: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,7 +47,11 @@ export class AdviceAggregate {
         weeklyRetrospects,
         overallGoal,
       },
-      output: '',
+      output: {
+        keep: '',
+        try: '',
+        problem: '',
+      },
       createdAt: now,
       updatedAt: now,
     });
@@ -88,7 +96,11 @@ export class AdviceAggregate {
     return this.props.input;
   }
 
-  get output(): string {
+  get output(): {
+    keep: string;
+    try: string;
+    problem: string;
+  } {
     return this.props.output;
   }
 
@@ -100,7 +112,7 @@ export class AdviceAggregate {
     return this.props.updatedAt;
   }
 
-  updateOutput(output: string): void {
+  updateOutput(output: { keep: string; try: string; problem: string }): void {
     this.props.output = output;
     this.props.updatedAt = new Date();
   }
@@ -117,7 +129,11 @@ export class AdviceAggregate {
   }
 
   isCompleted(): boolean {
-    return this.props.output.length > 0;
+    return (
+      this.props.output.keep.length > 0 &&
+      this.props.output.try.length > 0 &&
+      this.props.output.problem.length > 0
+    );
   }
 
   getInputAsJson(): string {

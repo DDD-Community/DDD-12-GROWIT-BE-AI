@@ -1,3 +1,5 @@
+import { StructuredAdviceResponseDto } from '../../../ai/dto';
+
 export interface AdviceGenerator {
   generateAdviceByPromptId(
     promptId: string,
@@ -6,5 +8,5 @@ export interface AdviceGenerator {
     incompleteTodos: string[],
     pastWeeklyGoals: string[],
     weeklyRetrospects: string[],
-  ): Promise<string>;
+  ): Promise<StructuredAdviceResponseDto>;
 }

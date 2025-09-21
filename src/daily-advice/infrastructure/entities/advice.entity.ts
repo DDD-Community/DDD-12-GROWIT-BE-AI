@@ -30,8 +30,12 @@ export class AdviceEntity {
     overallGoal: string;
   };
 
-  @Column('text')
-  output: string;
+  @Column('jsonb')
+  output: {
+    keep: string;
+    try: string;
+    problem: string;
+  };
 
   @CreateDateColumn()
   createdAt: Date;

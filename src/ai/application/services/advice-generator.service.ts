@@ -1,3 +1,4 @@
+import { StructuredAdviceResponseDto } from '@/ai/dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { AdviceGenerator } from '../../../daily-advice/domain/services/advice-generator.interface';
 import { OpenAIService } from './openai.service';
@@ -19,7 +20,7 @@ export class AdviceGeneratorService implements AdviceGenerator {
     incompleteTodos: string[],
     pastWeeklyGoals: string[],
     weeklyRetrospects: string[],
-  ): Promise<string> {
+  ): Promise<StructuredAdviceResponseDto> {
     try {
       const promptInfo =
         await this.promptTemplateService.getPromptInfoByPromptId(promptId);
@@ -44,12 +45,12 @@ export class AdviceGeneratorService implements AdviceGenerator {
           weeklyRetrospects,
         );
 
-      const advice = await this.openaiService.generateAdvice(prompt);
+      const adviceResponse = await this.openaiService.generateAdvice(prompt);
       this.logger.log(
-        `Generated advice for prompt ${promptId}: ${advice.substring(0, 50)}...`,
+        `Generated advice for prompt ${promptId}: ${JSON.stringify(adviceResponse).substring(0, 100)}...`,
       );
 
-      return advice;
+      return adviceResponse;
     } catch (error) {
       this.logger.error(
         `Failed to generate advice for prompt ${promptId}:`,

@@ -28,7 +28,11 @@ describe('AdviceAggregate', () => {
       expect(advice.input.recentTodos).toEqual(mockRecentTodos);
       expect(advice.input.weeklyRetrospects).toEqual(mockWeeklyRetrospects);
       expect(advice.input.overallGoal).toBe(mockOverallGoal);
-      expect(advice.output).toBe('');
+      expect(advice.output).toEqual({
+        keep: '',
+        try: '',
+        problem: '',
+      });
       expect(advice.uid).toBeDefined();
     });
   });
@@ -72,7 +76,11 @@ describe('AdviceAggregate', () => {
         mockOverallGoal,
       );
 
-      advice.updateOutput('Generated advice content');
+      advice.updateOutput({
+        keep: '계속 유지할 것',
+        try: '시도해볼 것',
+        problem: '문제점',
+      });
       expect(advice.isCompleted()).toBe(true);
     });
 
