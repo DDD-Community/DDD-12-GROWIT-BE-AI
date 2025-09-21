@@ -13,8 +13,7 @@ import {
   DeleteGoalRecommendationResponseDto,
   GenerateGoalRecommendationRequestDto,
   GenerateGoalRecommendationResponseDto,
-  GoalRecommendationResponseDto,
-  ListGoalRecommendationResponseDto,
+  GoalRecommendationSummaryDto,
 } from '../dto/generate-goal-recommendation.dto';
 
 @Controller('goal-recommendation')
@@ -34,8 +33,6 @@ export class GoalRecommendationController {
       JSON.stringify(request, null, 2),
     );
 
-    // DTO 검증은 ValidationPipe가 자동으로 처리
-    // 비즈니스 로직 검증은 Use Case에서 처리
     const command = new GenerateGoalRecommendationCommand(
       request.userId,
       request.promptId,
@@ -66,68 +63,34 @@ export class GoalRecommendationController {
       success: result.success,
       userId: request.userId,
       promptId: request.promptId,
+      id: result.id,
       output: result.entity.output,
       generatedAt: result.entity.createdAt,
       error: result.error,
     };
   }
 
-  @Get(':uid')
-  async getGoalRecommendation(
-    @Param('uid') uid: string,
-  ): Promise<GoalRecommendationResponseDto> {
-    this.logger.log('Getting goal recommendation:', uid);
+  @Get(':userId')
+  async getLatestGoalRecommendationByUserId(
+    @Param('userId') userId: string,
+  ): Promise<GoalRecommendationSummaryDto> {
+    this.logger.log('Getting latest goal recommendation for user:', userId);
 
     const goalRecommendation =
-      await this.generateGoalRecommendationUseCase.getGoalRecommendation(uid);
+      await this.generateGoalRecommendationUseCase.getLatestGoalRecommendationByUserId(
+        userId,
+      );
     if (!goalRecommendation) {
-      throw new Error(`Goal recommendation with UID ${uid} not found`);
+      throw new Error(`No goal recommendation found for user ${userId}`);
     }
 
     return {
       id: goalRecommendation.id.toString(),
       uid: goalRecommendation.uid,
-      userId: goalRecommendation.userId.getValue(),
       promptId: goalRecommendation.promptId,
-      input: {
-        pastTodos: goalRecommendation.input.pastTodos,
-        pastRetrospects: goalRecommendation.input.pastRetrospects,
-        overallGoal: goalRecommendation.input.overallGoal,
-      },
       output: goalRecommendation.output,
       createdAt: goalRecommendation.createdAt,
       updatedAt: goalRecommendation.updatedAt,
-    };
-  }
-
-  @Get()
-  async listGoalRecommendations(): Promise<ListGoalRecommendationResponseDto> {
-    this.logger.log('Listing all goal recommendations');
-
-    const goalRecommendationList =
-      await this.generateGoalRecommendationUseCase.listGoalRecommendations();
-
-    const goalRecommendationResponseList = goalRecommendationList.map(
-      (goalRecommendation) => ({
-        id: goalRecommendation.id.toString(),
-        uid: goalRecommendation.uid,
-        userId: goalRecommendation.userId.getValue(),
-        promptId: goalRecommendation.promptId,
-        input: {
-          mentorType: goalRecommendation.input.mentorType.toString(),
-          pastTodos: goalRecommendation.input.pastTodos,
-          pastRetrospects: goalRecommendation.input.pastRetrospects,
-          overallGoal: goalRecommendation.input.overallGoal,
-        },
-        output: goalRecommendation.output,
-        createdAt: goalRecommendation.createdAt,
-        updatedAt: goalRecommendation.updatedAt,
-      }),
-    );
-
-    return {
-      success: true,
-      goalRecommendations: goalRecommendationResponseList,
     };
   }
 

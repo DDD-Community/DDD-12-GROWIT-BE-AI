@@ -20,7 +20,6 @@ export interface AdviceInput {
   overallGoal: string;
 }
 
-// Aggregate Root
 export class AdviceAggregate {
   private constructor(private readonly props: AdviceProps) {}
 
@@ -50,20 +49,25 @@ export class AdviceAggregate {
     });
   }
 
-  static fromPersistence(props: AdviceProps): AdviceAggregate {
-    // VO 객체들을 재생성
+  static fromPersistence(
+    props: Omit<AdviceProps, 'userId' | 'input'> & {
+      userId: string;
+      input: Omit<AdviceInput, 'mentorType'> & {
+        mentorType: string;
+      };
+    },
+  ): AdviceAggregate {
     const reconstructedProps: AdviceProps = {
       ...props,
-      userId: UserId.create(props.userId.getValue()),
+      userId: UserId.create(props.userId),
       input: {
         ...props.input,
-        mentorType: MentorTypeVO.create(props.input.mentorType.toString()),
+        mentorType: MentorTypeVO.create(props.input.mentorType),
       },
     };
     return new AdviceAggregate(reconstructedProps);
   }
 
-  // Getters
   get id(): number {
     return this.props.id;
   }
@@ -96,7 +100,6 @@ export class AdviceAggregate {
     return this.props.updatedAt;
   }
 
-  // Domain methods
   updateOutput(output: string): void {
     this.props.output = output;
     this.props.updatedAt = new Date();
@@ -113,7 +116,6 @@ export class AdviceAggregate {
     };
   }
 
-  // Business rules
   isCompleted(): boolean {
     return this.props.output.length > 0;
   }
@@ -122,7 +124,6 @@ export class AdviceAggregate {
     return JSON.stringify(this.props.input);
   }
 
-  // Domain validation
   canGenerateAdvice(): boolean {
     return (
       this.props.input.recentTodos.length > 0 ||

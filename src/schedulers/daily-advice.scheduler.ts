@@ -25,7 +25,6 @@ export class DailyAdviceScheduler {
 
     try {
       this.logger.log('Daily advice scheduler is running...');
-      // TODO: Implement batch advice generation
       this.logger.log('Daily advice generation completed (placeholder)');
     } catch (error) {
       this.logger.error('Daily advice generation failed:', error.message);

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PromptTemplateDomain } from '../../domain/prompt-template.domain';
 import { CreatePromptTemplateRequestDto } from '../../dto/prompt-template.dto';
-import { PromptTemplateService } from '../../services/prompt-template.service';
+import { PromptTemplateService } from '../services/prompt-template.service';
 
 @Injectable()
 export class CreatePromptTemplateUseCase {

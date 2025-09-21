@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { AdviceGenerator } from '../../../ai/application/services/advice-generator.service';
+import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
 import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
-import { AdviceGenerator } from '../../../ai/services/advice-generator.service';
-import { PromptTemplateService } from '../../../ai/services/prompt-template.service';
+import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { AdviceAggregate, AdviceInput } from '../advice.domain';
 
 export interface GenerateAdviceCommand {
@@ -21,16 +22,15 @@ export class AdviceDomainService {
   constructor(
     @Inject('AdviceGenerator')
     private readonly adviceGenerator: AdviceGenerator,
-    private readonly promptTemplateService: PromptTemplateService,
+    @Inject('PromptInfoService')
+    private readonly promptInfoService: PromptInfoService,
   ) {}
 
   async generateAdvice(command: GenerateAdviceCommand): Promise<AdviceResult> {
     try {
-      // promptId를 통해 프롬프트 정보 조회
-      const promptInfo =
-        await this.promptTemplateService.getPromptInfoByPromptId(
-          command.promptId,
-        );
+      const promptInfo = await this.promptInfoService.getPromptInfoByPromptId(
+        command.promptId,
+      );
 
       if (!promptInfo) {
         return {
@@ -57,11 +57,14 @@ export class AdviceDomainService {
         command.input.overallGoal,
       );
 
-      if (!this.validateInput(command.input)) {
+      const validationResult = ValidationUtils.validateAdviceInput(
+        command.input,
+      );
+      if (!validationResult.isValid) {
         return {
           success: false,
           entity,
-          error: 'Invalid input data',
+          error: `Invalid input data: ${validationResult.errors.join(', ')}`,
         };
       }
 
@@ -69,9 +72,9 @@ export class AdviceDomainService {
         await this.adviceGenerator.generateAdviceByPromptId(
           command.promptId,
           command.input.overallGoal,
-          [], // completedTodos - 현재 요청에는 없음
-          command.input.recentTodos, // incompleteTodos로 사용
-          [], // pastWeeklyGoals - 현재 요청에는 없음
+          [],
+          command.input.recentTodos,
+          [],
           command.input.weeklyRetrospects,
         );
       entity.updateOutput(generatedAdvice);
@@ -87,15 +90,6 @@ export class AdviceDomainService {
         error: error.message,
       };
     }
-  }
-
-  private validateInput(input: Omit<AdviceInput, 'mentorType'>): boolean {
-    return (
-      Array.isArray(input.recentTodos) &&
-      Array.isArray(input.weeklyRetrospects) &&
-      input.overallGoal &&
-      input.overallGoal.length > 0
-    );
   }
 
   private getFallbackAdvice(mentorType: MentorType): string {

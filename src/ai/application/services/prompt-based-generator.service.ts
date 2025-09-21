@@ -42,7 +42,6 @@ export class PromptBasedGeneratorService {
     try {
       const { promptId } = request;
 
-      // 데이터베이스에서 프롬프트 정보 조회
       const promptInfo =
         await this.promptTemplateService.getPromptInfoByPromptId(promptId);
 
@@ -50,17 +49,10 @@ export class PromptBasedGeneratorService {
         throw new Error(`Prompt template not found: ${promptId}`);
       }
 
-      const { type, name, mentorType } = promptInfo;
+      const mentorName = promptInfo.mentorType?.toString() || '알 수 없는 멘토';
 
-      this.logger.log(
-        `Generating ${type} for prompt ${name} (mentor: ${mentorType || 'unknown'})`,
-      );
-
-      let content: string;
-
-      if (type === '조언') {
-        // 조언 생성
-        content = await this.adviceGenerator.generateAdviceByPromptId(
+      if (promptInfo.type === '조언') {
+        const content = await this.adviceGenerator.generateAdviceByPromptId(
           promptId,
           request.overallGoal,
           request.completedTodos,
@@ -68,37 +60,33 @@ export class PromptBasedGeneratorService {
           request.pastWeeklyGoals,
           request.weeklyRetrospects,
         );
-      } else if (type === '목표추천') {
-        // 목표 추천 생성
-        if (
-          !request.pastTodos ||
-          !request.pastRetrospects ||
-          !request.overallGoal
-        ) {
-          throw new Error(
-            'Missing required fields for goal recommendation: pastTodos, pastRetrospects, overallGoal',
-          );
-        }
 
-        content = await this.goalRecommender.recommendGoalByPromptId(
+        return {
+          success: true,
+          type: '조언',
+          mentorName,
+          content,
+        };
+      } else if (promptInfo.type === '목표추천') {
+        const content = await this.goalRecommender.recommendGoalByPromptId(
           promptId,
-          request.pastTodos,
-          request.pastRetrospects,
+          request.pastTodos || [],
+          request.pastRetrospects || [],
           request.overallGoal,
           request.completedTodos,
           request.pastWeeklyGoals,
           request.remainingTime,
         );
-      } else {
-        throw new Error(`Unsupported prompt type: ${type}`);
-      }
 
-      return {
-        success: true,
-        type: type as '조언' | '목표추천',
-        mentorName: mentorType || '알 수 없음',
-        content,
-      };
+        return {
+          success: true,
+          type: '목표추천',
+          mentorName,
+          content,
+        };
+      } else {
+        throw new Error(`Unsupported prompt type: ${promptInfo.type}`);
+      }
     } catch (error) {
       this.logger.error(
         `Failed to generate content for prompt ${request.promptId}:`,
@@ -107,9 +95,9 @@ export class PromptBasedGeneratorService {
 
       return {
         success: false,
-        type: '조언', // 기본값
-        mentorName: '알 수 없음',
-        content: '생성에 실패했습니다. 다시 시도해주세요.',
+        type: '조언',
+        mentorName: '알 수 없는 멘토',
+        content: '',
         error: error.message,
       };
     }

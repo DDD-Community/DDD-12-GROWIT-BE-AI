@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiModule } from '../ai/ai.module';
-import { AdviceGeneratorService } from '../ai/services/advice-generator.service';
+import { AdviceGeneratorService } from '../ai/application/services/advice-generator.service';
 import { GenerateAdviceUseCase } from './application/use-cases/generate-advice.use-case';
 import { AdviceDomainService } from './domain/services/advice.domain.service';
 import { AdviceEntity } from './infrastructure/entities/advice.entity';

@@ -74,6 +74,10 @@ export class GenerateGoalRecommendationResponseDto {
 
   @IsOptional()
   @IsString()
+  id?: string;
+
+  @IsOptional()
+  @IsString()
   output: string | null;
 
   @IsOptional()
@@ -85,7 +89,6 @@ export class GenerateGoalRecommendationResponseDto {
   error?: string;
 }
 
-// 목표 추천 조회용 DTO
 export class GoalRecommendationResponseDto {
   @IsString()
   id: string;
@@ -100,6 +103,26 @@ export class GoalRecommendationResponseDto {
   promptId: string;
 
   input: GoalRecommendationInputDto;
+
+  @IsString()
+  output: string;
+
+  @IsDate()
+  createdAt: Date;
+
+  @IsDate()
+  updatedAt: Date;
+}
+
+export class GoalRecommendationSummaryDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  uid: string;
+
+  @IsString()
+  promptId: string;
 
   @IsString()
   output: string;

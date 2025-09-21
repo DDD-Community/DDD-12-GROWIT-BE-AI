@@ -1,3 +1,8 @@
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
 export class ValidationUtils {
   static isValidAdviceResponse(response: string): boolean {
     if (
@@ -10,17 +15,14 @@ export class ValidationUtils {
 
     const trimmed = response.trim();
 
-    // 최소 길이 검증 (너무 짧으면 안됨)
     if (trimmed.length < 10) {
       return false;
     }
 
-    // 최대 길이 검증 (너무 길면 안됨)
     if (trimmed.length > 1000) {
       return false;
     }
 
-    // 기본적인 내용 검증 (한국어 또는 영어 텍스트가 있는지)
     const hasContent = /[가-힣a-zA-Z]/.test(trimmed);
 
     return hasContent;
@@ -37,7 +39,6 @@ export class ValidationUtils {
 
     const trimmed = response.trim();
 
-    // 목표는 5-200자 사이로 설정 (더 현실적으로)
     return trimmed.length >= 5 && trimmed.length <= 200;
   }
 
@@ -46,5 +47,103 @@ export class ValidationUtils {
       return '';
     }
     return response.trim().replace(/\n\n+/g, '\n').replace(/\s\s+/g, ' ');
+  }
+
+  /**
+   * 조언 입력 데이터 검증
+   */
+  static validateAdviceInput(input: {
+    recentTodos?: string[];
+    weeklyRetrospects?: string[];
+    overallGoal?: string;
+  }): ValidationResult {
+    const errors: string[] = [];
+
+    if (!input.overallGoal || input.overallGoal.trim().length === 0) {
+      errors.push('전체 목표는 필수입니다.');
+    } else if (input.overallGoal.trim().length < 5) {
+      errors.push('전체 목표는 최소 5자 이상이어야 합니다.');
+    }
+
+    if (input.recentTodos && !Array.isArray(input.recentTodos)) {
+      errors.push('최근 할 일 목록은 배열 형태여야 합니다.');
+    }
+
+    if (input.weeklyRetrospects && !Array.isArray(input.weeklyRetrospects)) {
+      errors.push('주간 회고는 배열 형태여야 합니다.');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
+  /**
+   * 목표 추천 입력 데이터 검증
+   */
+  static validateGoalRecommendationInput(input: {
+    pastTodos?: string[];
+    pastRetrospects?: string[];
+    overallGoal?: string;
+    completedTodos?: string[];
+    pastWeeklyGoals?: string[];
+    remainingTime?: string;
+  }): ValidationResult {
+    const errors: string[] = [];
+
+    if (!input.overallGoal || input.overallGoal.trim().length === 0) {
+      errors.push('전체 목표는 필수입니다.');
+    } else if (input.overallGoal.trim().length < 5) {
+      errors.push('전체 목표는 최소 5자 이상이어야 합니다.');
+    }
+
+    if (input.pastTodos && !Array.isArray(input.pastTodos)) {
+      errors.push('과거 할 일 목록은 배열 형태여야 합니다.');
+    }
+
+    if (input.pastRetrospects && !Array.isArray(input.pastRetrospects)) {
+      errors.push('과거 회고는 배열 형태여야 합니다.');
+    }
+
+    if (input.completedTodos && !Array.isArray(input.completedTodos)) {
+      errors.push('완료된 할 일 목록은 배열 형태여야 합니다.');
+    }
+
+    if (input.pastWeeklyGoals && !Array.isArray(input.pastWeeklyGoals)) {
+      errors.push('과거 주간 목표는 배열 형태여야 합니다.');
+    }
+
+    if (input.remainingTime && input.remainingTime.trim().length === 0) {
+      errors.push('남은 시간 정보가 비어있습니다.');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
+  /**
+   * 공통 입력 검증 (기본적인 필수 필드 검증)
+   */
+  static validateCommonInput(input: {
+    userId?: string;
+    promptId?: string;
+  }): ValidationResult {
+    const errors: string[] = [];
+
+    if (!input.userId || input.userId.trim().length === 0) {
+      errors.push('사용자 ID는 필수입니다.');
+    }
+
+    if (!input.promptId || input.promptId.trim().length === 0) {
+      errors.push('프롬프트 ID는 필수입니다.');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 }

@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MentorType } from '../domain/value-objects/mentor-type.vo';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
 
@@ -34,7 +33,6 @@ export class GoalRecommenderService implements GoalRecommender {
     remainingTime?: string,
   ): Promise<string> {
     try {
-      // 데이터베이스에서 프롬프트 정보 조회
       const promptInfo =
         await this.promptTemplateService.getPromptInfoByPromptId(promptId);
 
@@ -69,25 +67,11 @@ export class GoalRecommenderService implements GoalRecommender {
         error.message,
       );
 
-      // 프롬프트 ID에서 멘토 타입을 추출하여 폴백 사용
-      const mentorType =
-        this.promptTemplateService.extractMentorTypeFromPromptId(promptId);
-      const fallbackGoal = mentorType
-        ? this.getSimpleFallback(mentorType)
-        : '이번 주 목표 설정하기';
+      const fallbackGoal = '이번 주 목표 설정하기';
 
       this.logger.warn(`Using fallback goal: ${fallbackGoal}`);
 
       return fallbackGoal;
     }
-  }
-
-  private getSimpleFallback(mentorType: MentorType): string {
-    const fallbacks = {
-      [MentorType['피터 레벨스']]: '이번 주 프로젝트 진행하기',
-      [MentorType['젠슨 황']]: '이번 주 꾸준히 학습하기',
-      [MentorType.워렌버핏]: '이번 주 투자 공부하기',
-    };
-    return fallbacks[mentorType];
   }
 }

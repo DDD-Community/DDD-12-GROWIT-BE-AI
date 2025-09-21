@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiModule } from '../ai/ai.module';
-import { GoalRecommenderService } from '../ai/services/goal-recommender.service';
+import { GoalRecommenderService } from '../ai/application/services/goal-recommender.service';
 import { GenerateGoalRecommendationUseCase } from './application/use-cases/generate-goal-recommendation.use-case';
 import { GoalRecommendationDomainService } from './domain/services/goal-recommendation.domain.service';
 import { GoalRecommendationTypeOrmEntity } from './infrastructure/entities/goal-recommendation.entity';

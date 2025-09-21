@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { ValidationUtils } from '../../common/utils';
-import { OPENAI_CONFIG, getOpenAIApiKey } from '../../config/openai.config';
+import { ValidationUtils } from '../../../common/utils';
+import { OPENAI_CONFIG, getOpenAIApiKey } from '../../../config/openai.config';
 
 @Injectable()
 export class OpenAIService {

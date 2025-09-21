@@ -5,7 +5,7 @@ export class CreatePromptTemplateRequestDto {
   name: string;
 
   @IsString()
-  type: string; // "조언" 또는 "목표추천"
+  type: string;
 
   @IsOptional()
   @IsString()
@@ -26,7 +26,7 @@ export class CreatePromptTemplateRequestDto {
 
 export class PromptTemplateResponseDto {
   @IsString()
-  id: string; // 실제로는 uid 값
+  id: string;
 
   @IsString()
   uid: string;

@@ -6,6 +6,5 @@ export interface PromptTemplateRepository {
   findByName(name: string): Promise<PromptTemplate | null>;
   findByNameAndType(name: string, type: string): Promise<PromptTemplate | null>;
   findAll(): Promise<PromptTemplate[]>;
-  upsert(template: PromptTemplate): Promise<PromptTemplate>;
   deleteByUid(uid: string): Promise<boolean>;
 }

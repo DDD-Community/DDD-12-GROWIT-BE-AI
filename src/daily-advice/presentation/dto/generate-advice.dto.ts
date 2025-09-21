@@ -46,12 +46,12 @@ export class GenerateAdviceResponseDto {
   success: boolean;
   userId: string;
   promptId: string;
+  id?: string;
   output: string | null;
   generatedAt: Date | null;
   error?: string;
 }
 
-// 조언 조회용 DTO
 export class AdviceResponseDto {
   @IsString()
   id: string;
@@ -66,6 +66,26 @@ export class AdviceResponseDto {
   promptId: string;
 
   input: GenerateAdviceInputDto;
+
+  @IsString()
+  output: string;
+
+  @IsDate()
+  createdAt: Date;
+
+  @IsDate()
+  updatedAt: Date;
+}
+
+export class AdviceSummaryDto {
+  @IsString()
+  id: string;
+
+  @IsString()
+  uid: string;
+
+  @IsString()
+  promptId: string;
 
   @IsString()
   output: string;

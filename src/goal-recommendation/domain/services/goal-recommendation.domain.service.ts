@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { GoalRecommender } from '../../../ai/application/services/goal-recommender.service';
+import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
 import { MentorType } from '../../../ai/domain/value-objects/mentor-type.vo';
-import { GoalRecommender } from '../../../ai/services/goal-recommender.service';
-import { PromptTemplateService } from '../../../ai/services/prompt-template.service';
+import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { GoalRecommendationAggregate } from '../goal-recommendation.domain';
 
 export interface GenerateGoalRecommendationCommand {
@@ -27,18 +28,17 @@ export class GoalRecommendationDomainService {
   constructor(
     @Inject('GoalRecommender')
     private readonly goalRecommender: GoalRecommender,
-    private readonly promptTemplateService: PromptTemplateService,
+    @Inject('PromptInfoService')
+    private readonly promptInfoService: PromptInfoService,
   ) {}
 
   async generateGoalRecommendation(
     command: GenerateGoalRecommendationCommand,
   ): Promise<GoalRecommendationResult> {
     try {
-      // promptId를 통해 프롬프트 정보 조회
-      const promptInfo =
-        await this.promptTemplateService.getPromptInfoByPromptId(
-          command.promptId,
-        );
+      const promptInfo = await this.promptInfoService.getPromptInfoByPromptId(
+        command.promptId,
+      );
 
       if (!promptInfo) {
         return {
@@ -68,16 +68,16 @@ export class GoalRecommendationDomainService {
         command.remainingTime,
       );
 
-      // 입력 검증
-      if (!this.validateInput(command)) {
+      const validationResult =
+        ValidationUtils.validateGoalRecommendationInput(command);
+      if (!validationResult.isValid) {
         return {
           success: false,
           entity,
-          error: 'Invalid input data',
+          error: `Invalid input data: ${validationResult.errors.join(', ')}`,
         };
       }
 
-      // AI 목표 추천 생성
       const recommendedGoal =
         await this.goalRecommender.recommendGoalByPromptId(
           command.promptId,
@@ -101,15 +101,6 @@ export class GoalRecommendationDomainService {
         error: error.message,
       };
     }
-  }
-
-  private validateInput(command: GenerateGoalRecommendationCommand): boolean {
-    return (
-      Array.isArray(command.pastTodos) &&
-      Array.isArray(command.pastRetrospects) &&
-      command.overallGoal &&
-      command.overallGoal.length > 0
-    );
   }
 
   private getFallbackGoal(mentorType: MentorType): string {

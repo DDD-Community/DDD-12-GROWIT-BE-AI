@@ -1,8 +1,8 @@
 export interface PromptTemplate {
-  id: string; // 실제로는 uid 값
+  id: string;
   uid: string;
   name: string;
-  type: string; // "조언" 또는 "목표추천"
+  type: string;
   personaAndStyle: string;
   webSearchProtocol: string;
   outputRules: string;
@@ -20,7 +20,7 @@ export class PromptTemplateDomain implements PromptTemplate {
     public readonly webSearchProtocol: string,
     public readonly outputRules: string,
     public readonly insufficientContext: string,
-    public readonly id: string = '', // 실제로는 uid 값
+    public readonly id: string = '',
     public readonly uid: string = '',
     public readonly createdAt: Date = new Date(),
     public readonly updatedAt: Date = new Date(),
@@ -66,11 +66,29 @@ export class PromptTemplateDomain implements PromptTemplate {
     );
   }
 
-  // 전체 프롬프트를 조합하는 메서드
+  updateContent(
+    personaAndStyle: string,
+    webSearchProtocol: string,
+    outputRules: string,
+    insufficientContext: string,
+  ): PromptTemplateDomain {
+    return new PromptTemplateDomain(
+      this.name,
+      this.type,
+      personaAndStyle,
+      webSearchProtocol,
+      outputRules,
+      insufficientContext,
+      this.id,
+      this.uid,
+      this.createdAt,
+      new Date(),
+    );
+  }
+
   generateFullPrompt(): string {
     const parts = [];
 
-    // 기본 지시사항
     if (this.type === '조언') {
       parts.push(
         `당신은 ${this.name}입니다. 다음 정보를 바탕으로 조언을 제공해주세요.`,
@@ -93,7 +111,6 @@ export class PromptTemplateDomain implements PromptTemplate {
       parts.push(`\n${this.insufficientContext}`);
     }
 
-    // 사용자 데이터 섹션
     parts.push(`\n사용자 정보:`);
     parts.push(`- 최종 목표: {최종 목표}`);
     parts.push(`- 과거 완료 투두: {과거 완료 투두}`);

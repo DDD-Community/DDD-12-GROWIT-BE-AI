@@ -23,7 +23,6 @@ export interface GoalRecommendationInput {
   remainingTime?: string;
 }
 
-// Aggregate Root
 export class GoalRecommendationAggregate {
   private constructor(private readonly props: GoalRecommendationProps) {}
 
@@ -40,7 +39,7 @@ export class GoalRecommendationAggregate {
   ): GoalRecommendationAggregate {
     const now = new Date();
     return new GoalRecommendationAggregate({
-      id: 0, // DB에서 자동 생성
+      id: 0,
       uid: nanoid(),
       userId: UserId.create(userId),
       promptId: promptId,
@@ -60,21 +59,24 @@ export class GoalRecommendationAggregate {
   }
 
   static fromPersistence(
-    props: GoalRecommendationProps,
+    props: Omit<GoalRecommendationProps, 'userId' | 'input'> & {
+      userId: string;
+      input: Omit<GoalRecommendationInput, 'mentorType'> & {
+        mentorType: string;
+      };
+    },
   ): GoalRecommendationAggregate {
-    // VO 객체들을 재생성
     const reconstructedProps: GoalRecommendationProps = {
       ...props,
-      userId: UserId.create(props.userId.getValue()),
+      userId: UserId.create(props.userId),
       input: {
         ...props.input,
-        mentorType: MentorTypeVO.create(props.input.mentorType.toString()),
+        mentorType: MentorTypeVO.create(props.input.mentorType),
       },
     };
     return new GoalRecommendationAggregate(reconstructedProps);
   }
 
-  // Getters
   get id(): number {
     return this.props.id;
   }
@@ -107,7 +109,6 @@ export class GoalRecommendationAggregate {
     return this.props.updatedAt;
   }
 
-  // Domain methods
   updateOutput(output: string): void {
     this.props.output = output;
     this.props.updatedAt = new Date();
@@ -124,7 +125,6 @@ export class GoalRecommendationAggregate {
     };
   }
 
-  // Business rules
   isCompleted(): boolean {
     return this.props.output.length > 0;
   }

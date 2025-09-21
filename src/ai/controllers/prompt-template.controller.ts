@@ -14,7 +14,7 @@ import {
   ListPromptTemplatesResponseDto,
   PromptTemplateResponseDto,
 } from '../dto/prompt-template.dto';
-import { PromptTemplateService } from '../services/prompt-template.service';
+import { PromptTemplateService } from '../application/services/prompt-template.service';
 
 @Controller('ai')
 export class PromptTemplateController {

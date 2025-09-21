@@ -9,13 +9,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // CORS 설정
   app.enableCors({
     origin: true,
     credentials: true,
   });
 
-  // Global Validation Pipe 설정
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -27,7 +25,6 @@ async function bootstrap() {
     }),
   );
 
-  // Global prefix
   app.setGlobalPrefix('api');
 
   const port = configService.get('PORT') || 8001;

@@ -52,6 +52,21 @@ export class GoalRecommendationTypeOrmRepository
     return entities.map((entity) => this.toDomainEntity(entity));
   }
 
+  async findLatestByUserId(
+    userId: string,
+  ): Promise<GoalRecommendationAggregate | null> {
+    const entity = await this.repository.findOne({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!entity) {
+      return null;
+    }
+
+    return this.toDomainEntity(entity);
+  }
+
   async findByPromptId(
     promptId: string,
   ): Promise<GoalRecommendationAggregate[]> {
