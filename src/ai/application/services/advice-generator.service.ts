@@ -66,11 +66,7 @@ export class AdviceGeneratorService implements AdviceGenerator {
         error.message,
       );
 
-      const fallbackAdvice = '조언을 생성할 수 없습니다. 다시 시도해주세요.';
-
-      this.logger.warn(`Using fallback advice: ${fallbackAdvice}`);
-
-      return fallbackAdvice;
+      throw error;
     }
   }
 }

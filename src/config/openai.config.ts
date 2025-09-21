@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 
 export const OPENAI_CONFIG = {
   model: 'gpt-4',
-  maxTokens: 200,
+  maxTokens: 500,
   temperature: 0.7,
 };
 

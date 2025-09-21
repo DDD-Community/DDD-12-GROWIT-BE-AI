@@ -67,11 +67,7 @@ export class GoalRecommenderService implements GoalRecommender {
         error.message,
       );
 
-      const fallbackGoal = '이번 주 목표 설정하기';
-
-      this.logger.warn(`Using fallback goal: ${fallbackGoal}`);
-
-      return fallbackGoal;
+      throw error;
     }
   }
 }
