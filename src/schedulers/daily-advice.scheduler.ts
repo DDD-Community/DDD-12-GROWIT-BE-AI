@@ -31,18 +31,4 @@ export class DailyAdviceScheduler {
       this.logger.error('Daily advice generation failed:', error.message);
     }
   }
-
-  async triggerManualUpdate(): Promise<{ success: boolean; message: string }> {
-    try {
-      this.logger.log('Manual daily update triggered');
-      await this.handleDailyUpdate();
-      return { success: true, message: 'Manual update completed successfully' };
-    } catch (error) {
-      this.logger.error('Manual daily update failed:', error.message);
-      return {
-        success: false,
-        message: `Manual update failed: ${error.message}`,
-      };
-    }
-  }
 }

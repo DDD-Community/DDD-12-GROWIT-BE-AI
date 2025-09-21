@@ -139,10 +139,6 @@ export class PromptTemplateService {
     return finalPrompt;
   }
 
-  async saveTemplate(template: PromptTemplate): Promise<PromptTemplate> {
-    return await this.promptTemplateRepository.save(template);
-  }
-
   async getTemplate(uid: string): Promise<PromptTemplate | null> {
     return await this.promptTemplateRepository.findByUid(uid);
   }

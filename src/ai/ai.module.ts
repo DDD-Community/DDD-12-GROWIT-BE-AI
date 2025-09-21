@@ -1,20 +1,15 @@
-import { HttpModule, HttpService } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { SpringClientService } from '../external/spring-client.service';
 import { DailyAdviceScheduler } from '../schedulers/daily-advice.scheduler';
 import { CreatePromptTemplateUseCase } from './application/use-cases/create-prompt-template.use-case';
 import { PromptTemplateController } from './controllers/prompt-template.controller';
 import { AIGeneratorRepository } from './domain/repositories/ai-generator.repository';
-import { SpringIntegrationRepository } from './domain/repositories/spring-integration.repository';
 import { PromptTemplateEntity } from './infrastructure/entities/prompt-template.entity';
-import { MockSpringRepository } from './infrastructure/mock-spring.repository';
 import { OpenAIGeneratorRepository } from './infrastructure/openai-generator.repository';
 import { PromptTemplateTypeOrmRepository } from './infrastructure/repositories/prompt-template-typeorm.repository';
-import { SpringIntegrationRepositoryImpl } from './infrastructure/spring-integration.repository';
 import { AdviceGeneratorService } from './services/advice-generator.service';
 import { GoalRecommenderService } from './services/goal-recommender.service';
 import { OpenAIService } from './services/openai.service';
@@ -24,7 +19,6 @@ import { PromptTemplateService } from './services/prompt-template.service';
 @Module({
   imports: [
     ConfigModule,
-    HttpModule,
     ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([PromptTemplateEntity]),
   ],
@@ -42,26 +36,12 @@ import { PromptTemplateService } from './services/prompt-template.service';
       provide: 'PromptTemplateRepository',
       useClass: PromptTemplateTypeOrmRepository,
     },
-    {
-      provide: SpringIntegrationRepository,
-      useFactory: (httpService, configService) => {
-        const isTestMode =
-          process.env.NODE_ENV === 'test' ||
-          process.env.USE_MOCK_SPRING === 'true';
-        return isTestMode
-          ? new MockSpringRepository()
-          : new SpringIntegrationRepositoryImpl(httpService, configService);
-      },
-      inject: [HttpService, ConfigService],
-    },
-    SpringClientService,
     DailyAdviceScheduler,
     PromptTemplateService,
     CreatePromptTemplateUseCase,
   ],
   exports: [
     AIGeneratorRepository,
-    SpringIntegrationRepository,
     DailyAdviceScheduler,
     PromptTemplateService,
     OpenAIService,

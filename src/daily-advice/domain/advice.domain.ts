@@ -129,18 +129,4 @@ export class AdviceAggregate {
       this.props.input.weeklyRetrospects.length > 0
     );
   }
-
-  getAdviceContext(): string {
-    const todosText =
-      this.props.input.recentTodos.length > 0
-        ? this.props.input.recentTodos.join(', ')
-        : '작성된 투두가 없습니다';
-
-    const retrospectText =
-      this.props.input.weeklyRetrospects.length > 0
-        ? this.props.input.weeklyRetrospects.join(', ')
-        : '작성된 회고가 없습니다';
-
-    return `투두: ${todosText}, 회고: ${retrospectText}`;
-  }
 }
