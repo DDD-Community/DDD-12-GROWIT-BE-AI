@@ -53,8 +53,7 @@ export class PromptTemplateService implements PromptInfoService {
         : '주간 회고가 없습니다';
 
     const promptParts = [
-      template.personaAndStyle,
-      template.webSearchProtocol,
+      template.mentorProfile.personaAndStyle,
       `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 완료된 투두: ${completedTodosText}
@@ -71,8 +70,7 @@ export class PromptTemplateService implements PromptInfoService {
 }
 
 JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,
-      template.outputRules,
-      template.insufficientContext,
+      template.mentorProfile.outputRules,
     ];
 
     const prompt = promptParts.filter(Boolean).join('\n\n');
@@ -118,8 +116,7 @@ JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,
     const remainingTimeText = remainingTime || '남은 시간 정보가 없습니다';
 
     const promptParts = [
-      template.personaAndStyle,
-      template.webSearchProtocol,
+      template.mentorProfile.personaAndStyle,
       `\n\n사용자 정보:
 전체 목표: ${overallGoalText}
 과거 투두: ${pastTodosText}
@@ -128,8 +125,7 @@ JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,
 이전 주간 목표: ${pastWeeklyGoalsText}
 남은 시간: ${remainingTimeText}`,
       `\n\n위 정보를 바탕으로 이번 주에 달성할 수 있는 구체적이고 실행 가능한 목표를 추천해주세요.`,
-      template.outputRules,
-      template.insufficientContext,
+      template.mentorProfile.outputRules,
     ];
 
     const prompt = promptParts.filter(Boolean).join('\n\n');
@@ -181,12 +177,7 @@ JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,
     if (existingTemplate) {
       const updatedTemplate = (
         existingTemplate as PromptTemplateDomain
-      ).updateContent(
-        template.personaAndStyle,
-        template.webSearchProtocol,
-        template.outputRules,
-        template.insufficientContext,
-      );
+      ).updateContent(template.mentorProfile);
       return await this.promptTemplateRepository.save(updatedTemplate);
     } else {
       return await this.promptTemplateRepository.save(template);

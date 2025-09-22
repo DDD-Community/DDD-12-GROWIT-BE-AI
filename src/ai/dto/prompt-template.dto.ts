@@ -1,4 +1,5 @@
-import { IsBoolean, IsDate, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsObject, IsString } from 'class-validator';
+import { MentorProfile } from '../domain/prompt-template.domain';
 
 export class CreatePromptTemplateRequestDto {
   @IsString()
@@ -7,21 +8,8 @@ export class CreatePromptTemplateRequestDto {
   @IsString()
   type: string;
 
-  @IsOptional()
-  @IsString()
-  personaAndStyle?: string;
-
-  @IsOptional()
-  @IsString()
-  webSearchProtocol?: string;
-
-  @IsOptional()
-  @IsString()
-  outputRules?: string;
-
-  @IsOptional()
-  @IsString()
-  insufficientContext?: string;
+  @IsObject()
+  mentorProfile: MentorProfile;
 }
 
 export class PromptTemplateResponseDto {
@@ -37,17 +25,8 @@ export class PromptTemplateResponseDto {
   @IsString()
   type: string;
 
-  @IsString()
-  personaAndStyle: string;
-
-  @IsString()
-  webSearchProtocol: string;
-
-  @IsString()
-  outputRules: string;
-
-  @IsString()
-  insufficientContext: string;
+  @IsObject()
+  mentorProfile: MentorProfile;
 
   @IsDate()
   createdAt: Date;

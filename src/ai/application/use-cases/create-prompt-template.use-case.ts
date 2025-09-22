@@ -17,10 +17,7 @@ export class CreatePromptTemplateUseCase {
     const template = PromptTemplateDomain.create(
       request.name,
       request.type,
-      request.personaAndStyle || '',
-      request.webSearchProtocol || '',
-      request.outputRules || '',
-      request.insufficientContext || '',
+      request.mentorProfile,
     );
 
     const savedTemplate =
