@@ -58,10 +58,7 @@ export class PromptTemplateTypeOrmRepository
     entity.uid = domain.uid;
     entity.name = domain.name;
     entity.type = domain.type;
-    entity.personaAndStyle = domain.personaAndStyle;
-    entity.webSearchProtocol = domain.webSearchProtocol;
-    entity.outputRules = domain.outputRules;
-    entity.insufficientContext = domain.insufficientContext;
+    entity.mentorProfile = domain.mentorProfile;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     return entity;
@@ -71,10 +68,7 @@ export class PromptTemplateTypeOrmRepository
     return new PromptTemplateDomain(
       entity.name,
       entity.type,
-      entity.personaAndStyle,
-      entity.webSearchProtocol,
-      entity.outputRules,
-      entity.insufficientContext,
+      entity.mentorProfile,
       entity.uid,
       entity.uid,
       entity.createdAt,

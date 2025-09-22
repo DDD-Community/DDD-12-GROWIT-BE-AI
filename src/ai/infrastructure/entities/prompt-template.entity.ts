@@ -24,17 +24,17 @@ export class PromptTemplateEntity {
   @Column()
   type: string;
 
-  @Column('text')
-  personaAndStyle: string;
-
-  @Column('text')
-  webSearchProtocol: string;
-
-  @Column('text')
-  outputRules: string;
-
-  @Column('text')
-  insufficientContext: string;
+  @Column('json')
+  mentorProfile: {
+    occupation?: string;
+    age?: string;
+    personality?: string;
+    speakingStyle?: string;
+    skills?: string[];
+    expertise?: string;
+    personaAndStyle?: string;
+    outputRules?: string;
+  };
 
   @CreateDateColumn()
   createdAt: Date;

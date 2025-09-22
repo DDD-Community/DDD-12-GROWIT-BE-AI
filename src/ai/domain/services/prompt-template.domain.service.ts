@@ -25,12 +25,7 @@ export class PromptTemplateDomainServiceImpl
     if (existingTemplate) {
       const updatedTemplate = (
         existingTemplate as PromptTemplateDomain
-      ).updateContent(
-        template.personaAndStyle,
-        template.webSearchProtocol,
-        template.outputRules,
-        template.insufficientContext,
-      );
+      ).updateContent(template.mentorProfile);
       return await this.promptTemplateRepository.save(updatedTemplate);
     } else {
       return await this.promptTemplateRepository.save(template);

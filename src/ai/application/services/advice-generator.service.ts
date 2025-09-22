@@ -29,7 +29,7 @@ export class AdviceGeneratorService implements AdviceGenerator {
         throw new Error(`Prompt template not found: ${promptId}`);
       }
 
-      if (promptInfo.type !== '조언') {
+      if (promptInfo.type !== 'advice') {
         throw new Error(
           `Invalid prompt type for advice generation: ${promptInfo.type}`,
         );

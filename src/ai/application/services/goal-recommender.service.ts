@@ -29,7 +29,7 @@ export class GoalRecommenderService implements GoalRecommender {
         throw new Error(`Prompt template not found: ${promptId}`);
       }
 
-      if (promptInfo.type !== '목표추천') {
+      if (promptInfo.type !== 'goal') {
         throw new Error(
           `Invalid prompt type for goal recommendation: ${promptInfo.type}`,
         );
