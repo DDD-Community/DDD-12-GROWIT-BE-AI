@@ -1,0 +1,113 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+    
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+  checks: read
+
+jobs:
+  # PR 리뷰
+  review:
+    if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run PR Agent
+        uses: qodo-ai/pr-agent@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
+          github_action_config.config.response_language: "ko-KR"
+
+  # 빌드 및 테스트
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check TypeScript types
+        run: npm run type-check
+
+      - name: Check code formatting
+        run: npm run format:check
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: dist/
+          retention-days: 7
+
+  # 알림 (PR에서만)
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    needs: [review, build]
+    if: ${{ github.event_name == 'pull_request' && always() }}
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Prepare message
+        id: prep
+        run: |
+          STATUS="✅ 모든 단계 성공"
+          COLOR="3066993"  # Green
+          FAILURES=""
+          
+          # 각 작업별 상태 확인
+          if [ "${{ needs.review.result }}" == "failure" ]; then
+            FAILURES="$FAILURES\n❌ PR Review 실패"
+          fi
+          if [ "${{ needs.build.result }}" == "failure" ]; then
+            FAILURES="$FAILURES\n❌ Build 실패"
+          fi
+          
+          if [ -n "$FAILURES" ]; then
+            STATUS="🚨 실패 단계:$FAILURES"
+            COLOR="15158332"  # Red
+          fi
+          
+          echo "status_msg=$STATUS" >> $GITHUB_OUTPUT
+          echo "embed_color=$COLOR" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          embed-title: "📣 PR 요청"
+          embed-description: |
+            **제목:** ${{ github.event.pull_request.title }}
+            **작성자:** ${{ github.event.pull_request.user.login }}
+            **링크:** ${{ github.event.pull_request.html_url }}
+            
+            ${{ steps.prep.outputs.status_msg }}
+          embed-color: ${{ steps.prep.outputs.embed_color }}
+          username: "GitHub Actions"
+          avatar-url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
