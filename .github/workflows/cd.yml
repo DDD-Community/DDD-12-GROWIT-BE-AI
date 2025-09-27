@@ -1,0 +1,151 @@
+name: CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Service tag to deploy'
+        required: true
+        default: 'v1.0.1'
+
+jobs:
+  # Docker 이미지 빌드 & ECR 푸시
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
+      tag: ${{ steps.extract-tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: extract-tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Deploying with tag: $TAG"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.extract-tag.outputs.tag }}
+        run: |
+          IMAGE="$ECR_REGISTRY/${{ vars.ECR_REPOSITORY }}:$IMAGE_TAG"
+          echo "Building image: $IMAGE"
+          
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+  # ECS 배포
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Set container name
+        run: echo "CONTAINER_NAME=${{ vars.CONTAINER_NAME || 'growit-ai-container' }}" >> $GITHUB_ENV
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "${{ vars.ECS_TASK_DEFINITION }}" \
+            --query taskDefinition > task-definition.json
+
+      - name: Render ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ vars.CONTAINER_NAME }}
+          image: ${{ needs.build-and-push.outputs.image }}
+          environment-variables: |
+            PORT=${{ vars.PORT || '3001' }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: false
+
+  # 배포 알림
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy]
+    if: always()
+    steps:
+      - name: Prepare message
+        id: prep
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            STATUS="✅ 배포 성공"
+            COLOR="3066993"  # Green
+          else
+            STATUS="❌ 배포 실패"
+            COLOR="15158332"  # Red
+          fi
+          
+          echo "status_msg=$STATUS" >> $GITHUB_OUTPUT
+          echo "embed_color=$COLOR" >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          embed-title: "🚀 ECS 배포 알림"
+          embed-description: |
+            **서비스:** ${{ vars.ECS_SERVICE }}
+            **클러스터:** ${{ vars.ECS_CLUSTER }}
+            **이미지 태그:** ${{ needs.build-and-push.outputs.tag }}
+            **브랜치:** main
+            **커밋:** ${{ github.sha }}
+            **작성자:** ${{ github.actor }}
+            **커밋 메시지:** ${{ github.event.head_commit.message }}
+            
+            ${{ steps.prep.outputs.status_msg }}
+          embed-color: ${{ steps.prep.outputs.embed_color }}
+          embed-url: ${{ github.event.head_commit.url }}
+          username: "GitHub Actions"
+          avatar-url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
