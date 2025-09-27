@@ -26,7 +26,7 @@ import { GoalRecommendationModule } from './goal-recommendation/goal-recommendat
         logging: configService.get('NODE_ENV') === 'development',
         ssl:
           configService.get('NODE_ENV') === 'production'
-            ? { rejectUnauthorized: false }
+            ? { rejectUnauthorized: true }
             : false,
       }),
       inject: [ConfigService],
