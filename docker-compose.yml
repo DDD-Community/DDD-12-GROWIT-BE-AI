@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-dev
+    environment:
+      POSTGRES_DB: growit_ai
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - growit-network
+
+  app:
+    build: .
+    container_name: growit-ai-app
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1234
+      DB_NAME: growit_ai
+      NODE_ENV: development
+      PORT: 8001
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+    networks:
+      - growit-network
+
+volumes:
+  postgres_data:
+
+networks:
+  growit-network:
+    driver: bridge
