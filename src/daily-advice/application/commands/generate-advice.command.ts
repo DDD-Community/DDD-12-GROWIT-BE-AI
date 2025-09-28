@@ -8,7 +8,6 @@ export class GenerateAdviceCommand {
     public readonly recentTodos: string[],
     public readonly weeklyRetrospects: string[],
     public readonly overallGoal: string,
-    public readonly templateUid?: string,
   ) {}
 }
 

@@ -3,7 +3,6 @@ import {
   IsBoolean,
   IsDate,
   IsNotEmpty,
-  IsOptional,
   IsString,
 } from 'class-validator';
 
@@ -33,10 +32,6 @@ export class GenerateAdviceRequestDto {
   @IsString()
   @IsNotEmpty()
   promptId: string;
-
-  @IsOptional()
-  @IsString()
-  templateUid?: string;
 
   @IsNotEmpty()
   input: GenerateAdviceInputDto;

@@ -38,7 +38,6 @@ export class AdviceController {
       request.input.recentTodos,
       request.input.weeklyRetrospects,
       request.input.overallGoal,
-      request.templateUid,
     );
 
     const result = await this.generateAdviceUseCase.execute(command);

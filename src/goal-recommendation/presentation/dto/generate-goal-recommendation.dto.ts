@@ -53,10 +53,6 @@ export class GenerateGoalRecommendationRequestDto {
   @IsNotEmpty()
   promptId: string;
 
-  @IsOptional()
-  @IsString()
-  templateUid?: string;
-
   @ValidateNested()
   @Type(() => GoalRecommendationInputDto)
   input: GoalRecommendationInputDto;

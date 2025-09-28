@@ -10,7 +10,6 @@ export class GenerateGoalRecommendationCommand {
     public readonly completedTodos?: string[],
     public readonly pastWeeklyGoals?: string[],
     public readonly remainingTime?: string,
-    public readonly templateUid?: string,
   ) {}
 }
 
