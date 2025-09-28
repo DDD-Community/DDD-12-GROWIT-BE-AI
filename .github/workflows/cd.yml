@@ -30,6 +30,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TAG="${{ inputs.tag }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TAG="main"
           else
             TAG="${GITHUB_REF#refs/tags/}"
           fi
