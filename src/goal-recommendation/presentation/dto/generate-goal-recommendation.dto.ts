@@ -1,32 +1,25 @@
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDate,
   IsNotEmpty,
   IsOptional,
   IsString,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
 
 export class GoalRecommendationInputDto {
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1, { message: 'pastTodos must contain at least one item' })
   pastTodos: string[];
 
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1, {
-    message: 'pastRetrospects must contain at least one item',
-  })
   pastRetrospects: string[];
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(10, { message: 'overallGoal must be at least 10 characters long' })
   overallGoal: string;
 
   @IsOptional()
