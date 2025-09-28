@@ -15,7 +15,6 @@ export class HealthController {
     return this.health.check([
       () => this.healthService.checkDatabase(),
       () => this.healthService.checkOpenAI(),
-      () => this.healthService.checkMemory(),
     ]);
   }
 
