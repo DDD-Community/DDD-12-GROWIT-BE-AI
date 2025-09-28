@@ -35,7 +35,7 @@ export class GenerateAdviceUseCase {
 
     try {
       // 1. Domain Service를 통해 비즈니스 로직 실행
-      const domainResult = command.templateUid
+      const domainResult = command.promptId
         ? await this.adviceTemplateService.generateWithTemplate(command)
         : await this.adviceDomainService.generateAdvice({
             userId: command.userId,

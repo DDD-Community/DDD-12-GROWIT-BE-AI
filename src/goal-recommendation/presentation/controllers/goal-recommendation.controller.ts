@@ -42,7 +42,6 @@ export class GoalRecommendationController {
       request.input.completedTodos,
       request.input.pastWeeklyGoals,
       request.input.remainingTime,
-      request.templateUid,
     );
 
     const result =

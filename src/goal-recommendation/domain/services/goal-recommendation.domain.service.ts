@@ -13,7 +13,6 @@ export interface GenerateGoalRecommendationCommand {
   completedTodos?: string[];
   pastWeeklyGoals?: string[];
   remainingTime?: string;
-  templateUid?: string;
 }
 
 export interface GoalRecommendationResult {
