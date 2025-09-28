@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiModule } from './ai/ai.module';
 import { DailyAdviceModule } from './daily-advice/daily-advice.module';
 import { GoalRecommendationModule } from './goal-recommendation/goal-recommendation.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { GoalRecommendationModule } from './goal-recommendation/goal-recommendat
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
+    HealthModule,
     AiModule,
     GoalRecommendationModule,
     DailyAdviceModule,
