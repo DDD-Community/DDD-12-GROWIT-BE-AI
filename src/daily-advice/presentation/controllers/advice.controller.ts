@@ -35,7 +35,9 @@ export class AdviceController {
       request.userId,
       request.promptId,
       request.input.mentorType,
-      request.input.recentTodos,
+      request.input.completedTodos,
+      request.input.incompleteTodos,
+      request.input.pastWeeklyGoals,
       request.input.weeklyRetrospects,
       request.input.overallGoal,
     );

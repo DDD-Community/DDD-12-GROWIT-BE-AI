@@ -46,7 +46,9 @@ export class AdviceTemplateDomainService {
         command.userId,
         command.promptId,
         promptInfo.mentorType,
-        command.recentTodos,
+        command.completedTodos,
+        command.incompleteTodos,
+        command.pastWeeklyGoals,
         command.weeklyRetrospects,
         command.overallGoal,
       );
@@ -55,9 +57,9 @@ export class AdviceTemplateDomainService {
         await this.adviceGenerator.generateAdviceByPromptId(
           command.promptId,
           command.overallGoal,
-          [],
-          command.recentTodos,
-          [],
+          command.completedTodos,
+          command.incompleteTodos,
+          command.pastWeeklyGoals,
           command.weeklyRetrospects,
         );
 

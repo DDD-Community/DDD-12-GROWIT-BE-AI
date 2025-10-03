@@ -51,7 +51,9 @@ export class AdviceDomainService {
         command.userId,
         command.promptId,
         promptInfo.mentorType,
-        command.input.recentTodos,
+        command.input.completedTodos,
+        command.input.incompleteTodos,
+        command.input.pastWeeklyGoals,
         command.input.weeklyRetrospects,
         command.input.overallGoal,
       );
@@ -71,9 +73,9 @@ export class AdviceDomainService {
         await this.adviceGenerator.generateAdviceByPromptId(
           command.promptId,
           command.input.overallGoal,
-          [],
-          command.input.recentTodos,
-          [],
+          command.input.completedTodos,
+          command.input.incompleteTodos,
+          command.input.pastWeeklyGoals,
           command.input.weeklyRetrospects,
         );
       entity.updateOutput(generatedAdvice);
