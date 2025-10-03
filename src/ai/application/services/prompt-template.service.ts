@@ -66,7 +66,7 @@ export class PromptTemplateService implements PromptInfoService {
 {
   "keep": "잘하고 있는 점이나 계속해야 할 것 (1-2문장)",
   "try": "앞으로 시도해볼 새로운 방법이나 개선 방안 (1-2문장)",
-  "problem": "개선이 필요한 부분이나 해결해야 할 문제 (1-2문장)"
+  "problem": "개선이 필요한 부분이나 해결해야 할 문제 (1-2문장)",
   "copywriting": "오늘의 조언 (10~20자 내외)"
 }
 
