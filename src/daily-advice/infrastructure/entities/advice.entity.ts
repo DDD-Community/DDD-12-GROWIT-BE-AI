@@ -35,6 +35,7 @@ export class AdviceEntity {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   };
 
   @CreateDateColumn()
