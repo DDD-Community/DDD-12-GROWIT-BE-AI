@@ -32,6 +32,7 @@ describe('AdviceAggregate', () => {
         keep: '',
         try: '',
         problem: '',
+        copywriting: '',
       });
       expect(advice.uid).toBeDefined();
     });
@@ -80,6 +81,7 @@ describe('AdviceAggregate', () => {
         keep: '계속 유지할 것',
         try: '시도해볼 것',
         problem: '문제점',
+        copywriting: '오늘의 조언',
       });
       expect(advice.isCompleted()).toBe(true);
     });

@@ -46,6 +46,7 @@ export class GenerateAdviceResponseDto {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   } | null;
   generatedAt: Date | null;
   error?: string;
@@ -70,6 +71,7 @@ export class AdviceResponseDto {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   };
 
   @IsDate()
@@ -93,6 +95,7 @@ export class AdviceSummaryDto {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   };
 
   @IsDate()

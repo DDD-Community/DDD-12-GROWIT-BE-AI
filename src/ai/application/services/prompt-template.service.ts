@@ -60,13 +60,14 @@ export class PromptTemplateService implements PromptInfoService {
 진행 중인 투두: ${incompleteTodosText}
 이전 주간 목표: ${pastWeeklyGoalsText}
 주간 회고: ${weeklyRetrospectsText}`,
-      `\n\n위 정보를 바탕으로 KPT(Keep, Problem, Try) 형식으로 오늘의 조언을 제공해주세요.
+      `\n\n위 정보를 바탕으로 KPT(Keep, Problem, Try, Copywriting) 형식으로 오늘의 조언을 제공해주세요.
 
 반드시 다음 JSON 형식으로만 응답해주세요:
 {
   "keep": "잘하고 있는 점이나 계속해야 할 것 (1-2문장)",
   "try": "앞으로 시도해볼 새로운 방법이나 개선 방안 (1-2문장)",
   "problem": "개선이 필요한 부분이나 해결해야 할 문제 (1-2문장)"
+  "copywriting": "오늘의 조언 (1-2문장)"
 }
 
 JSON 형식 외의 다른 텍스트는 포함하지 마세요.`,

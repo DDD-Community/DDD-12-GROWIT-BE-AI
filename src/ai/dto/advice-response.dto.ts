@@ -12,4 +12,8 @@ export class StructuredAdviceResponseDto {
   @IsString()
   @IsNotEmpty()
   problem: string;
+
+  @IsString()
+  @IsNotEmpty()
+  copywriting: string;
 }

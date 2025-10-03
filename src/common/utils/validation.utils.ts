@@ -13,6 +13,7 @@ export interface StructuredAdviceResponse {
   keep: string;
   try: string;
   problem: string;
+  copywriting: string;
 }
 
 export class ValidationUtils {

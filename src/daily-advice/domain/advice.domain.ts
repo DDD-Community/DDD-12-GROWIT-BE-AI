@@ -12,6 +12,7 @@ export interface AdviceProps {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -51,6 +52,7 @@ export class AdviceAggregate {
         keep: '',
         try: '',
         problem: '',
+        copywriting: '',
       },
       createdAt: now,
       updatedAt: now,
@@ -100,6 +102,7 @@ export class AdviceAggregate {
     keep: string;
     try: string;
     problem: string;
+    copywriting: string;
   } {
     return this.props.output;
   }
@@ -112,7 +115,12 @@ export class AdviceAggregate {
     return this.props.updatedAt;
   }
 
-  updateOutput(output: { keep: string; try: string; problem: string }): void {
+  updateOutput(output: {
+    keep: string;
+    try: string;
+    problem: string;
+    copywriting: string;
+  }): void {
     this.props.output = output;
     this.props.updatedAt = new Date();
   }
@@ -132,7 +140,8 @@ export class AdviceAggregate {
     return (
       this.props.output.keep.length > 0 &&
       this.props.output.try.length > 0 &&
-      this.props.output.problem.length > 0
+      this.props.output.problem.length > 0 &&
+      this.props.output.copywriting.length > 0
     );
   }
 
