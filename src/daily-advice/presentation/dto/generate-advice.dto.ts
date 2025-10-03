@@ -13,7 +13,15 @@ export class GenerateAdviceInputDto {
 
   @IsArray()
   @IsString({ each: true })
-  recentTodos: string[];
+  completedTodos: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  incompleteTodos: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  pastWeeklyGoals: string[];
 
   @IsArray()
   @IsString({ each: true })

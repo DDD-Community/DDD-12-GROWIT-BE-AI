@@ -41,7 +41,9 @@ export class GenerateAdviceUseCase {
             userId: command.userId,
             promptId: command.promptId,
             input: {
-              recentTodos: command.recentTodos,
+              completedTodos: command.completedTodos,
+              incompleteTodos: command.incompleteTodos,
+              pastWeeklyGoals: command.pastWeeklyGoals,
               weeklyRetrospects: command.weeklyRetrospects,
               overallGoal: command.overallGoal,
             },
