@@ -7,12 +7,14 @@ import { DailyAdviceModule } from './daily-advice/daily-advice.module';
 import { GoalRecommendationModule } from './goal-recommendation/goal-recommendation.module';
 import { HealthModule } from './health/health.module';
 import { RetroSpectModule } from './retro-spect/retro-spect.module';
+import { validate } from './config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+      validate,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
