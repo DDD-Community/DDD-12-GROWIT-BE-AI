@@ -6,6 +6,7 @@ import { AiModule } from './ai/ai.module';
 import { DailyAdviceModule } from './daily-advice/daily-advice.module';
 import { GoalRecommendationModule } from './goal-recommendation/goal-recommendation.module';
 import { HealthModule } from './health/health.module';
+import { RetroSpectModule } from './retro-spect/retro-spect.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { HealthModule } from './health/health.module';
     AiModule,
     GoalRecommendationModule,
     DailyAdviceModule,
+    RetroSpectModule,
   ],
   controllers: [],
   providers: [],

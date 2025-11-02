@@ -1,19 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { GoalRetrospectAggregate } from '../goal-retrospect.domain';
+import { Analysis } from '../value-objects';
 import {
   RetrospectAnalyzer,
   RetrospectAnalysisInput,
 } from './retrospect-analyzer.interface';
 
-export interface GenerateGoalRetrospectInput {
-  goalId: string;
-  content: string;
-  analysisInput: RetrospectAnalysisInput;
-}
-
 export interface GenerateGoalRetrospectResult {
   success: boolean;
-  entity: GoalRetrospectAggregate | null;
+  todoCompletedRate: number;
+  analysis: Analysis | null;
   error?: string;
 }
 
@@ -22,38 +17,30 @@ export class GoalRetrospectDomainService {
   constructor(private readonly retrospectAnalyzer: RetrospectAnalyzer) {}
 
   async generateGoalRetrospect(
-    input: GenerateGoalRetrospectInput,
+    input: RetrospectAnalysisInput,
   ): Promise<GenerateGoalRetrospectResult> {
     try {
       // 1. Calculate todo completion rate
-      const completedCount = input.analysisInput.todos.filter(
+      const completedCount = input.todos.filter(
         (todo) => todo.completed,
       ).length;
-      const totalCount = input.analysisInput.todos.length;
+      const totalCount = input.todos.length;
       const todoCompletedRate =
         totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
       // 2. Generate AI analysis
-      const analysis = await this.retrospectAnalyzer.generateAnalysis(
-        input.analysisInput,
-      );
-
-      // 3. Create domain entity
-      const goalRetrospect = GoalRetrospectAggregate.create(
-        input.goalId,
-        todoCompletedRate,
-        analysis,
-        input.content,
-      );
+      const analysis = await this.retrospectAnalyzer.generateAnalysis(input);
 
       return {
         success: true,
-        entity: goalRetrospect,
+        todoCompletedRate,
+        analysis,
       };
     } catch (error) {
       return {
         success: false,
-        entity: null,
+        todoCompletedRate: 0,
+        analysis: null,
         error: error.message || 'Failed to generate goal retrospect',
       };
     }
