@@ -1,5 +1,10 @@
 import { StructuredAdviceResponseDto } from '@/ai/dto';
 import { Injectable, Logger } from '@nestjs/common';
+import {
+  NotFoundException,
+  ValidationException,
+} from '../../../common/exceptions';
+import { RetryUtils, StringUtils } from '../../../common/utils';
 import { AdviceGenerator } from '../../../daily-advice/domain/services/advice-generator.interface';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
@@ -21,43 +26,53 @@ export class AdviceGeneratorService implements AdviceGenerator {
     pastWeeklyGoals: string[],
     weeklyRetrospects: string[],
   ): Promise<StructuredAdviceResponseDto> {
-    try {
-      const promptInfo =
-        await this.promptTemplateService.getPromptInfoByPromptId(promptId);
+    this.logger.log(`Generating advice for prompt: ${promptId}`);
 
-      if (!promptInfo) {
-        throw new Error(`Prompt template not found: ${promptId}`);
-      }
+    const promptInfo =
+      await this.promptTemplateService.getPromptInfoByPromptId(promptId);
 
-      if (promptInfo.type !== 'advice') {
-        throw new Error(
-          `Invalid prompt type for advice generation: ${promptInfo.type}`,
-        );
-      }
-
-      const prompt =
-        await this.promptTemplateService.generateAdvicePromptByPromptId(
-          promptId,
-          overallGoal,
-          completedTodos,
-          incompleteTodos,
-          pastWeeklyGoals,
-          weeklyRetrospects,
-        );
-
-      const adviceResponse = await this.openaiService.generateAdvice(prompt);
-      this.logger.log(
-        `Generated advice for prompt ${promptId}: ${JSON.stringify(adviceResponse).substring(0, 100)}...`,
-      );
-
-      return adviceResponse;
-    } catch (error) {
-      this.logger.error(
-        `Failed to generate advice for prompt ${promptId}:`,
-        error.message,
-      );
-
-      throw error;
+    if (!promptInfo) {
+      throw new NotFoundException('Prompt template', promptId);
     }
+
+    if (promptInfo.type !== 'advice') {
+      throw new ValidationException(
+        `Invalid prompt type for advice generation: ${promptInfo.type}`,
+        {
+          code: 'INVALID_PROMPT_TYPE',
+          details: { promptId, type: promptInfo.type },
+        },
+      );
+    }
+
+    const prompt =
+      await this.promptTemplateService.generateAdvicePromptByPromptId(
+        promptId,
+        overallGoal,
+        completedTodos,
+        incompleteTodos,
+        pastWeeklyGoals,
+        weeklyRetrospects,
+      );
+
+    const adviceResponse = await RetryUtils.retry(
+      () => this.openaiService.generateAdvice(prompt),
+      {
+        maxAttempts: 3,
+        delayMs: 1000,
+        exponentialBackoff: true,
+        onRetry: (error, attempt) => {
+          this.logger.warn(
+            `Advice generation retry (attempt ${attempt}): ${error.message}`,
+          );
+        },
+      },
+    );
+
+    this.logger.log(
+      `Generated advice for prompt ${promptId}: ${StringUtils.truncate(JSON.stringify(adviceResponse), 100)}`,
+    );
+
+    return adviceResponse;
   }
 }

@@ -1,5 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
+import {
+  NotFoundException,
+  ValidationException,
+} from '../../../common/exceptions';
 import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { AdviceAggregate, AdviceInput } from '../advice.domain';
 import { AdviceGenerator } from './advice-generator.interface';
@@ -18,6 +22,8 @@ export interface AdviceResult {
 
 @Injectable()
 export class AdviceDomainService {
+  private readonly logger = new Logger(AdviceDomainService.name);
+
   constructor(
     @Inject('AdviceGenerator')
     private readonly adviceGenerator: AdviceGenerator,
@@ -27,24 +33,39 @@ export class AdviceDomainService {
 
   async generateAdvice(command: GenerateAdviceCommand): Promise<AdviceResult> {
     try {
+      this.logger.log(
+        `Generating advice for user ${command.userId}, prompt ${command.promptId}`,
+      );
+
       const promptInfo = await this.promptInfoService.getPromptInfoByPromptId(
         command.promptId,
       );
 
       if (!promptInfo) {
-        return {
-          success: false,
-          entity: null,
-          error: `Prompt template not found for promptId: ${command.promptId}`,
-        };
+        throw new NotFoundException('Prompt template', command.promptId);
       }
 
       if (!promptInfo.mentorType) {
-        return {
-          success: false,
-          entity: null,
-          error: `Cannot extract mentor type from promptId: ${command.promptId}`,
-        };
+        throw new ValidationException(
+          `Cannot extract mentor type from promptId: ${command.promptId}`,
+          {
+            code: 'MISSING_MENTOR_TYPE',
+            details: { promptId: command.promptId },
+          },
+        );
+      }
+
+      const validationResult = ValidationUtils.validateAdviceInput(
+        command.input,
+      );
+      if (!validationResult.isValid) {
+        throw new ValidationException(
+          `Invalid input data: ${validationResult.errors.join(', ')}`,
+          {
+            code: 'INVALID_ADVICE_INPUT',
+            details: { errors: validationResult.errors },
+          },
+        );
       }
 
       const entity = AdviceAggregate.create(
@@ -58,17 +79,6 @@ export class AdviceDomainService {
         command.input.overallGoal,
       );
 
-      const validationResult = ValidationUtils.validateAdviceInput(
-        command.input,
-      );
-      if (!validationResult.isValid) {
-        return {
-          success: false,
-          entity,
-          error: `Invalid input data: ${validationResult.errors.join(', ')}`,
-        };
-      }
-
       const generatedAdvice =
         await this.adviceGenerator.generateAdviceByPromptId(
           command.promptId,
@@ -80,11 +90,19 @@ export class AdviceDomainService {
         );
       entity.updateOutput(generatedAdvice);
 
+      this.logger.log(
+        `Successfully generated advice for user ${command.userId}`,
+      );
+
       return {
         success: true,
         entity,
       };
     } catch (error) {
+      this.logger.error(
+        `Failed to generate advice: ${error.message}`,
+        error.stack,
+      );
       return {
         success: false,
         entity: null,

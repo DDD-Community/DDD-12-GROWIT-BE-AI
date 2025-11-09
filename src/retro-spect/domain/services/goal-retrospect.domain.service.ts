@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Analysis } from '../value-objects';
 import {
   RetrospectAnalyzer,
@@ -14,7 +14,10 @@ export interface GenerateGoalRetrospectResult {
 
 @Injectable()
 export class GoalRetrospectDomainService {
-  constructor(private readonly retrospectAnalyzer: RetrospectAnalyzer) {}
+  constructor(
+    @Inject('RetrospectAnalyzer')
+    private readonly retrospectAnalyzer: RetrospectAnalyzer,
+  ) {}
 
   async generateGoalRetrospect(
     input: RetrospectAnalysisInput,

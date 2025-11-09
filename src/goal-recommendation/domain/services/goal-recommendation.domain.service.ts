@@ -1,5 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PromptInfoService } from '../../../ai/domain/services/prompt-info.service';
+import {
+  NotFoundException,
+  ValidationException,
+} from '../../../common/exceptions';
 import { ValidationUtils } from '../../../common/utils/validation.utils';
 import { GoalRecommendationAggregate } from '../goal-recommendation.domain';
 import { GoalRecommender } from './goal-recommender.interface';
@@ -23,6 +27,8 @@ export interface GoalRecommendationResult {
 
 @Injectable()
 export class GoalRecommendationDomainService {
+  private readonly logger = new Logger(GoalRecommendationDomainService.name);
+
   constructor(
     @Inject('GoalRecommender')
     private readonly goalRecommender: GoalRecommender,
@@ -34,24 +40,38 @@ export class GoalRecommendationDomainService {
     command: GenerateGoalRecommendationCommand,
   ): Promise<GoalRecommendationResult> {
     try {
+      this.logger.log(
+        `Generating goal recommendation for user ${command.userId}, prompt ${command.promptId}`,
+      );
+
       const promptInfo = await this.promptInfoService.getPromptInfoByPromptId(
         command.promptId,
       );
 
       if (!promptInfo) {
-        return {
-          success: false,
-          entity: null,
-          error: `Prompt template not found for promptId: ${command.promptId}`,
-        };
+        throw new NotFoundException('Prompt template', command.promptId);
       }
 
       if (!promptInfo.mentorType) {
-        return {
-          success: false,
-          entity: null,
-          error: `Cannot extract mentor type from promptId: ${command.promptId}`,
-        };
+        throw new ValidationException(
+          `Cannot extract mentor type from promptId: ${command.promptId}`,
+          {
+            code: 'MISSING_MENTOR_TYPE',
+            details: { promptId: command.promptId },
+          },
+        );
+      }
+
+      const validationResult =
+        ValidationUtils.validateGoalRecommendationInput(command);
+      if (!validationResult.isValid) {
+        throw new ValidationException(
+          `Invalid input data: ${validationResult.errors.join(', ')}`,
+          {
+            code: 'INVALID_GOAL_INPUT',
+            details: { errors: validationResult.errors },
+          },
+        );
       }
 
       const entity = GoalRecommendationAggregate.create(
@@ -66,16 +86,6 @@ export class GoalRecommendationDomainService {
         command.remainingTime,
       );
 
-      const validationResult =
-        ValidationUtils.validateGoalRecommendationInput(command);
-      if (!validationResult.isValid) {
-        return {
-          success: false,
-          entity,
-          error: `Invalid input data: ${validationResult.errors.join(', ')}`,
-        };
-      }
-
       const recommendedGoal =
         await this.goalRecommender.recommendGoalByPromptId(
           command.promptId,
@@ -88,11 +98,19 @@ export class GoalRecommendationDomainService {
         );
       entity.updateOutput(recommendedGoal);
 
+      this.logger.log(
+        `Successfully generated goal recommendation for user ${command.userId}`,
+      );
+
       return {
         success: true,
         entity,
       };
     } catch (error) {
+      this.logger.error(
+        `Failed to generate goal recommendation: ${error.message}`,
+        error.stack,
+      );
       return {
         success: false,
         entity: null,
