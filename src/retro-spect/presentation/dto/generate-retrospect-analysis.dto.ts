@@ -1,11 +1,12 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class GoalDto {
   @IsNotEmpty()
@@ -59,7 +60,7 @@ export class TodoDto {
   @IsString()
   title: string;
 
-  @IsNotEmpty()
+  @IsBoolean()
   completed: boolean;
 }
 

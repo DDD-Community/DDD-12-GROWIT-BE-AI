@@ -31,6 +31,8 @@ export class GoalRetrospectController {
       request.todos,
     );
 
+    console.log('command', command);
+
     const result =
       await this.generateRetrospectAnalysisUseCase.execute(command);
 

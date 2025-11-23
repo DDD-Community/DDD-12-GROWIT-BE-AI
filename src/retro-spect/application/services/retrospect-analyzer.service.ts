@@ -42,51 +42,38 @@ advice:
   constructor(private readonly openaiService: OpenAIService) {}
 
   async generateAnalysis(input: RetrospectAnalysisInput): Promise<Analysis> {
-    try {
-      this.logger.log(
-        `Generating retrospect analysis for goal: ${input.goal.id}`,
-      );
+    this.logger.log(
+      `Generating retrospect analysis for goal: ${input.goal.id}`,
+    );
 
-      // Prepare user message with input data
-      const userMessage = this.buildUserMessage(input);
+    // Prepare user message with input data
+    const userMessage = this.buildUserMessage(input);
 
-      // Call OpenAI
-      const response = await this.openaiService.createChatCompletion(
-        [
-          { role: 'system', content: this.SYSTEM_PROMPT },
-          { role: 'user', content: userMessage },
-        ],
-        {
-          temperature: 0.7,
-          max_tokens: 1000,
-        },
-      );
+    // Call OpenAI
+    const response = await this.openaiService.createChatCompletion(
+      [
+        { role: 'system', content: this.SYSTEM_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
+      {
+        temperature: 0.7,
+        max_tokens: 1000,
+      },
+    );
 
-      const content = response.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error('No content in OpenAI response');
-      }
-
-      // Parse JSON response
-      const analysisJson = this.parseJsonResponse(content);
-
-      this.logger.log(
-        `Successfully generated analysis for goal: ${input.goal.id}`,
-      );
-
-      return new Analysis(analysisJson.summary, analysisJson.advice);
-    } catch (error) {
-      this.logger.error(
-        `Failed to generate analysis: ${error.message}`,
-        error.stack,
-      );
-
-      // Return fallback analysis
-      return new Analysis(
-        'AI 분석을 생성하는 중 오류가 발생했습니다. 시스템 로그를 확인해 주십시오. 목표 진행 상황을 검토하고 다시 시도해주시기 바랍니다.',
-        `예외가 발생했습니다: ${error.message} 시스템 관리자에게 문의하시면 도움을 받으실 수 있습니다다냥.`,
-      );
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content in OpenAI response');
     }
+
+    // Parse JSON response
+    const analysisJson = this.parseJsonResponse(content);
+
+    this.logger.log(
+      `Successfully generated analysis for goal: ${input.goal.id}`,
+    );
+
+    return new Analysis(analysisJson.summary, analysisJson.advice);
   }
 
   private buildUserMessage(input: RetrospectAnalysisInput): string {

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Analysis } from '../../domain/value-objects';
 import { GoalRetrospectDomainService } from '../../domain/services/goal-retrospect.domain.service';
+import { Analysis } from '../../domain/value-objects';
 import { GenerateRetrospectAnalysisCommand } from '../commands/generate-retrospect-analysis.command';
 
 export interface GenerateRetrospectAnalysisResult {
@@ -26,7 +26,6 @@ export class GenerateRetrospectAnalysisUseCase {
     );
 
     try {
-      // Generate retrospect through domain service
       const domainResult =
         await this.goalRetrospectDomainService.generateGoalRetrospect({
           goal: command.goal,
@@ -42,6 +41,8 @@ export class GenerateRetrospectAnalysisUseCase {
       this.logger.log(
         `Successfully generated retrospect analysis for goal ${command.goalId}`,
       );
+
+      console.log('domainResult', domainResult);
 
       return domainResult;
     } catch (error) {
