@@ -1,4 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
+import {
+  NotFoundException,
+  ValidationException,
+} from '../../../common/exceptions';
+import { RetryUtils, StringUtils } from '../../../common/utils';
 import { GoalRecommender } from '../../../goal-recommendation/domain/services/goal-recommender.interface';
 import { OpenAIService } from './openai.service';
 import { PromptTemplateService } from './prompt-template.service';
@@ -21,42 +26,54 @@ export class GoalRecommenderService implements GoalRecommender {
     pastWeeklyGoals?: string[],
     remainingTime?: string,
   ): Promise<string> {
-    try {
-      const promptInfo =
-        await this.promptTemplateService.getPromptInfoByPromptId(promptId);
+    this.logger.log(`Generating goal recommendation for prompt: ${promptId}`);
 
-      if (!promptInfo) {
-        throw new Error(`Prompt template not found: ${promptId}`);
-      }
+    const promptInfo =
+      await this.promptTemplateService.getPromptInfoByPromptId(promptId);
 
-      if (promptInfo.type !== 'goal') {
-        throw new Error(
-          `Invalid prompt type for goal recommendation: ${promptInfo.type}`,
-        );
-      }
+    if (!promptInfo) {
+      throw new NotFoundException('Prompt template', promptId);
+    }
 
-      const prompt =
-        await this.promptTemplateService.generateGoalPromptByPromptId(
-          promptId,
-          pastTodos,
-          pastRetrospects,
-          overallGoal,
-          completedTodos,
-          pastWeeklyGoals,
-          remainingTime,
-        );
+    if (promptInfo.type !== 'goal') {
+      throw new ValidationException(
+        `Invalid prompt type for goal recommendation: ${promptInfo.type}`,
+        {
+          code: 'INVALID_PROMPT_TYPE',
+          details: { promptId, type: promptInfo.type },
+        },
+      );
+    }
 
-      const goal = await this.openaiService.generateGoal(prompt);
-      this.logger.log(`Generated goal for prompt ${promptId}: ${goal}`);
-
-      return goal;
-    } catch (error) {
-      this.logger.error(
-        `Failed to generate goal for prompt ${promptId}:`,
-        error.message,
+    const prompt =
+      await this.promptTemplateService.generateGoalPromptByPromptId(
+        promptId,
+        pastTodos,
+        pastRetrospects,
+        overallGoal,
+        completedTodos,
+        pastWeeklyGoals,
+        remainingTime,
       );
 
-      throw error;
-    }
+    const goal = await RetryUtils.retry(
+      () => this.openaiService.generateGoal(prompt),
+      {
+        maxAttempts: 3,
+        delayMs: 1000,
+        exponentialBackoff: true,
+        onRetry: (error, attempt) => {
+          this.logger.warn(
+            `Goal generation retry (attempt ${attempt}): ${error.message}`,
+          );
+        },
+      },
+    );
+
+    this.logger.log(
+      `Generated goal for prompt ${promptId}: ${StringUtils.truncate(goal, 100)}`,
+    );
+
+    return goal;
   }
 }

@@ -90,4 +90,32 @@ export class OpenAIService {
       throw error;
     }
   }
+
+  async createChatCompletion(
+    messages: Array<{ role: string; content: string }>,
+    options?: {
+      temperature?: number;
+      max_tokens?: number;
+      model?: string;
+    },
+  ): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+    try {
+      this.logger.debug(
+        `Creating chat completion with ${messages.length} messages`,
+      );
+
+      const response = await this.openai.chat.completions.create({
+        model: options?.model || OPENAI_CONFIG.model,
+        messages:
+          messages as OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+        max_tokens: options?.max_tokens || OPENAI_CONFIG.maxTokens,
+        temperature: options?.temperature ?? OPENAI_CONFIG.temperature,
+      });
+
+      return response;
+    } catch (error) {
+      this.logger.error('Failed to create chat completion:', error.message);
+      throw error;
+    }
+  }
 }
