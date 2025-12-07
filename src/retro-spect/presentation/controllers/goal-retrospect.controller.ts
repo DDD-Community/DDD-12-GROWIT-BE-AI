@@ -19,8 +19,7 @@ export class GoalRetrospectController {
     @Body() request: GenerateRetrospectAnalysisRequestDto,
   ): Promise<GenerateRetrospectAnalysisResponseDto> {
     this.logger.log(
-      'Received retrospect analysis generation request for goal:',
-      request.goalId,
+      `Received retrospect analysis request for goalId: ${request.goalId}`,
     );
 
     const command = new GenerateRetrospectAnalysisCommand(
@@ -31,18 +30,23 @@ export class GoalRetrospectController {
       request.todos,
     );
 
-    console.log('command', command);
-
     const result =
       await this.generateRetrospectAnalysisUseCase.execute(command);
 
     if (!result.success || !result.analysis) {
+      this.logger.warn(
+        `Analysis generation failed for goalId: ${request.goalId} - ${result.error}`,
+      );
       return {
         success: false,
         goalId: request.goalId,
         error: result.error,
       };
     }
+
+    this.logger.log(
+      `Analysis generation succeeded for goalId: ${request.goalId}, todoCompletedRate: ${result.todoCompletedRate}%`,
+    );
 
     return {
       success: result.success,
