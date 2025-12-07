@@ -41,9 +41,8 @@ export class RetrospectDto {
   @IsString()
   id: string;
 
-  @IsNotEmpty()
   @IsString()
-  content: string;
+  content: string; // 빈 문자열 허용
 
   @IsOptional()
   @ValidateNested()
@@ -69,9 +68,8 @@ export class GenerateRetrospectAnalysisRequestDto {
   @IsString()
   goalId: string;
 
-  @IsNotEmpty()
   @IsString()
-  content: string;
+  content: string; // 빈 문자열 허용
 
   @IsNotEmpty()
   @ValidateNested()
