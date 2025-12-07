@@ -25,9 +25,7 @@ export class AdviceEntity {
   @Column('jsonb')
   input: {
     mentorType: string;
-    completedTodos: string[];
-    incompleteTodos: string[];
-    pastWeeklyGoals: string[];
+    recentTodos: string[];
     weeklyRetrospects: string[];
     overallGoal: string;
   };

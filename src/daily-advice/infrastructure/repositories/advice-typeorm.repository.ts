@@ -21,9 +21,7 @@ export class AdviceTypeOrmRepository implements AdviceRepository {
       promptId: props.promptId,
       input: {
         mentorType: props.input.mentorType.toString(),
-        completedTodos: props.input.completedTodos,
-        incompleteTodos: props.input.incompleteTodos,
-        pastWeeklyGoals: props.input.pastWeeklyGoals,
+        recentTodos: props.input.recentTodos,
         weeklyRetrospects: props.input.weeklyRetrospects,
         overallGoal: props.input.overallGoal,
       },
@@ -117,9 +115,7 @@ export class AdviceTypeOrmRepository implements AdviceRepository {
       promptId: entity.promptId,
       input: {
         mentorType: entity.input.mentorType,
-        completedTodos: entity.input.completedTodos,
-        incompleteTodos: entity.input.incompleteTodos,
-        pastWeeklyGoals: entity.input.pastWeeklyGoals,
+        recentTodos: entity.input.recentTodos,
         weeklyRetrospects: entity.input.weeklyRetrospects,
         overallGoal: entity.input.overallGoal,
       },
