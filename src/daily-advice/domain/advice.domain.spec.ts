@@ -6,9 +6,7 @@ describe('AdviceAggregate', () => {
   const mockUserId = 'user-123';
   const mockPromptId = 'prompt-456';
   const mockMentorType = '피터 레벨스';
-  const mockCompletedTodos = ['코딩 공부', '프로젝트 진행'];
-  const mockIncompleteTodos = ['코딩 공부', '프로젝트 진행'];
-  const mockPastWeeklyGoals = ['코딩 공부', '프로젝트 진행'];
+  const mockRecentTodos = ['코딩 공부', '프로젝트 진행'];
   const mockWeeklyRetrospects = ['잘한 점', '개선할 점'];
   const mockOverallGoal = '성공적인 개발자가 되기';
 
@@ -18,9 +16,7 @@ describe('AdviceAggregate', () => {
         mockUserId,
         mockPromptId,
         mockMentorType,
-        mockCompletedTodos,
-        mockIncompleteTodos,
-        mockPastWeeklyGoals,
+        mockRecentTodos,
         mockWeeklyRetrospects,
         mockOverallGoal,
       );
@@ -29,9 +25,7 @@ describe('AdviceAggregate', () => {
       expect(advice.userId.getValue()).toBe(mockUserId);
       expect(advice.input.mentorType).toBeInstanceOf(MentorTypeVO);
       expect(advice.input.mentorType.getValue()).toBe(mockMentorType);
-      expect(advice.input.completedTodos).toEqual(mockCompletedTodos);
-      expect(advice.input.incompleteTodos).toEqual(mockIncompleteTodos);
-      expect(advice.input.pastWeeklyGoals).toEqual(mockPastWeeklyGoals);
+      expect(advice.input.recentTodos).toEqual(mockRecentTodos);
       expect(advice.input.weeklyRetrospects).toEqual(mockWeeklyRetrospects);
       expect(advice.input.overallGoal).toBe(mockOverallGoal);
       expect(advice.output).toEqual({
@@ -44,15 +38,41 @@ describe('AdviceAggregate', () => {
     });
   });
 
+  describe('canGenerateAdvice', () => {
+    it('should return true when input data is sufficient', () => {
+      const advice = AdviceAggregate.create(
+        mockUserId,
+        mockPromptId,
+        mockMentorType,
+        mockRecentTodos,
+        mockWeeklyRetrospects,
+        mockOverallGoal,
+      );
+
+      expect(advice.canGenerateAdvice()).toBe(true);
+    });
+
+    it('should return false when both input arrays are empty', () => {
+      const advice = AdviceAggregate.create(
+        mockUserId,
+        mockPromptId,
+        mockMentorType,
+        [],
+        [],
+        mockOverallGoal,
+      );
+
+      expect(advice.canGenerateAdvice()).toBe(false);
+    });
+  });
+
   describe('isCompleted', () => {
     it('should return true when output is generated', () => {
       const advice = AdviceAggregate.create(
         mockUserId,
         mockPromptId,
         mockMentorType,
-        mockCompletedTodos,
-        mockIncompleteTodos,
-        mockPastWeeklyGoals,
+        mockRecentTodos,
         mockWeeklyRetrospects,
         mockOverallGoal,
       );
@@ -71,9 +91,7 @@ describe('AdviceAggregate', () => {
         mockUserId,
         mockPromptId,
         mockMentorType,
-        mockCompletedTodos,
-        mockIncompleteTodos,
-        mockPastWeeklyGoals,
+        mockRecentTodos,
         mockWeeklyRetrospects,
         mockOverallGoal,
       );

@@ -20,9 +20,7 @@ export interface AdviceProps {
 
 export interface AdviceInput {
   mentorType: MentorTypeVO;
-  completedTodos: string[];
-  incompleteTodos: string[];
-  pastWeeklyGoals: string[];
+  recentTodos: string[];
   weeklyRetrospects: string[];
   overallGoal: string;
 }
@@ -34,9 +32,7 @@ export class AdviceAggregate {
     userId: string,
     promptId: string,
     mentorType: string,
-    completedTodos: string[],
-    incompleteTodos: string[],
-    pastWeeklyGoals: string[],
+    recentTodos: string[],
     weeklyRetrospects: string[],
     overallGoal: string,
   ): AdviceAggregate {
@@ -48,9 +44,7 @@ export class AdviceAggregate {
       promptId: promptId,
       input: {
         mentorType: MentorTypeVO.create(mentorType),
-        completedTodos,
-        incompleteTodos,
-        pastWeeklyGoals,
+        recentTodos,
         weeklyRetrospects,
         overallGoal,
       },
@@ -153,5 +147,12 @@ export class AdviceAggregate {
 
   getInputAsJson(): string {
     return JSON.stringify(this.props.input);
+  }
+
+  canGenerateAdvice(): boolean {
+    return (
+      this.props.input.recentTodos.length > 0 ||
+      this.props.input.weeklyRetrospects.length > 0
+    );
   }
 }
