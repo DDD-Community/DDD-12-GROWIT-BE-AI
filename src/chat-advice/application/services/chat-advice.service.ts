@@ -1,6 +1,7 @@
 import { RealtimeAdviceRequestDto } from '@/chat-advice/presentation/dto/realtime-advice-request.dto';
 import { RealtimeAdviceResponseDto } from '@/chat-advice/presentation/dto/realtime-advice-response.dto';
 import { Injectable, Logger } from '@nestjs/common';
+import { match } from 'ts-pattern';
 import { OpenAIService } from '../../../ai/application/services/openai.service';
 import { RetryUtils } from '../../../common/utils';
 import { ChatAdvicePromptService } from './chat-advice-prompt.service';
@@ -21,13 +22,22 @@ export class ChatAdviceService {
       `Generating ${request.mode} advice for user ${request.userId}, goal ${request.goalId}`,
     );
 
-    // Generate prompt based on mode
-    const prompt = this.promptService.generateRealtimeAdvicePrompt(
-      request.goalTitle,
-      request.concern,
-      request.mode,
-      request.recentTodos,
-    );
+    // Generate prompt based on onboarding status or mode
+    const prompt = match(request.isGoalOnboardingCompleted)
+      .with(false, () =>
+        this.promptService.generateOnboardingPrompt(
+          request.goalTitle,
+          request.concern,
+        ),
+      )
+      .otherwise(() =>
+        this.promptService.generateRealtimeAdvicePrompt(
+          request.goalTitle,
+          request.concern,
+          request.mode,
+          request.recentTodos,
+        ),
+      );
 
     // Call OpenAI with retry logic
     const advice = await RetryUtils.retry(

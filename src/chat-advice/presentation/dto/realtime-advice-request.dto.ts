@@ -32,4 +32,7 @@ export class RealtimeAdviceRequestDto {
   @IsOptional()
   @IsString({ each: true })
   recentTodos?: string[];
+
+  @IsNotEmpty()
+  isGoalOnboardingCompleted: boolean;
 }

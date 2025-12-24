@@ -36,6 +36,29 @@ export class ChatAdvicePromptService {
     return data;
   }
 
+  generateOnboardingPrompt(goalTitle: string, concern: string): string {
+    this.logger.debug(`Generating onboarding prompt for goal: ${goalTitle}`);
+
+    return `당신은 사용자가 처음 설정한 목표를 격려하고 응원하는 따뜻한 AI 멘토입니다.
+
+사용자 정보:
+- 선택한 목표: ${goalTitle}
+- 전송한 고민: ${concern}
+
+위 정보를 참고해서 사용자가 목표를 향해 첫걸음을 잘 뗄 수 있도록 자연스럽고 친절한 격려형 답변을 작성해주세요.
+
+조언 구성:
+1. 본문: 유저의 목표와 고민을 언급하며 진심 어린 응원과 격려를 담은 내용 (100자 이상 200자 이내)
+2. 마지막: 반드시 한 줄을 띄우고 "이번 목표 진행에 어려움은 없었어?"라는 질문으로 마무리
+
+양식:
+- 친근한 반말 사용
+- 이모지 절대 사용 금지
+- 느낌표(!)나 기호는 적절히 사용 가능
+
+조언을 작성해주세요:`;
+  }
+
   private formatTodos(todos?: string[]): string {
     if (!todos || todos.length === 0) {
       return '최근 투두가 없습니다';
