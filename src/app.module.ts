@@ -3,11 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiModule } from './ai/ai.module';
+import { ChatAdviceModule } from './chat-advice/chat-advice.module';
+import { validate } from './config/env.validation';
 import { DailyAdviceModule } from './daily-advice/daily-advice.module';
 import { GoalRecommendationModule } from './goal-recommendation/goal-recommendation.module';
 import { HealthModule } from './health/health.module';
 import { RetroSpectModule } from './retro-spect/retro-spect.module';
-import { validate } from './config/env.validation';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { validate } from './config/env.validation';
     ScheduleModule.forRoot(),
     HealthModule,
     AiModule,
+    ChatAdviceModule,
     GoalRecommendationModule,
     DailyAdviceModule,
     RetroSpectModule,
