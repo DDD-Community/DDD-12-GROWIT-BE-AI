@@ -26,7 +26,9 @@ export class ChatAdviceController {
   async generateMorningAdvice(
     @Body() request: MorningAdviceRequestDto,
   ): Promise<MorningAdviceResponseDto> {
-    this.logger.log(`Received morning advice request from user ${request.userId}`);
+    this.logger.log(
+      `Received morning advice request from user ${request.userId}`,
+    );
 
     return await this.chatAdviceService.generateMorningAdvice(request);
   }

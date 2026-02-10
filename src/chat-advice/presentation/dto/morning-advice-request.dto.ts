@@ -16,4 +16,8 @@ export class MorningAdviceRequestDto {
   @IsString()
   @IsOptional()
   previousConversations: string;
+
+  @IsString()
+  @IsOptional()
+  manseRyok?: string;
 }

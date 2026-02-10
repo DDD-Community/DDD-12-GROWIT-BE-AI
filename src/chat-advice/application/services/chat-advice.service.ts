@@ -39,6 +39,7 @@ export class ChatAdviceService {
           request.concern,
           request.mode,
           request.recentTodos,
+          request.manseRyok,
         ),
       );
 
@@ -91,6 +92,7 @@ export class ChatAdviceService {
       request.goalTitles || [],
       request.recentTodos || [],
       request.previousConversations || '',
+      request.manseRyok,
     );
 
     const advice = await RetryUtils.retry(

@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class RealtimeAdviceRequestDto {
@@ -32,6 +33,11 @@ export class RealtimeAdviceRequestDto {
   @IsOptional()
   @IsString({ each: true })
   recentTodos?: string[];
+
+  @IsOptional()
+  @IsString()
+  @ValidateIf((o) => o.mode === AdviceMode.사주)
+  manseRyok?: string;
 
   @IsNotEmpty()
   isGoalOnboardingCompleted: boolean;
