@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class MorningAdviceRequestDto {
   @IsString()
@@ -17,7 +24,8 @@ export class MorningAdviceRequestDto {
   @IsOptional()
   previousConversations: string;
 
-  @IsString()
   @IsOptional()
-  manseRyok?: string;
+  @ValidateNested()
+  @Type(() => FourPillarsDto)
+  manseRyok?: FourPillarsDto;
 }

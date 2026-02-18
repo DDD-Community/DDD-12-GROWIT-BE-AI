@@ -1,4 +1,5 @@
 import { AdviceMode } from '@/common/enums/advice-mode.enum';
+import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { match } from 'ts-pattern';
 
@@ -11,7 +12,7 @@ export class ChatAdvicePromptService {
     concern: string,
     mode: AdviceMode,
     recentTodos?: string[],
-    manseRyok?: string,
+    manseRyok?: FourPillarsDto,
   ): string {
     this.logger.debug(`Generating ${mode} mode prompt for goal: ${goalTitle}`);
 
@@ -48,6 +49,7 @@ export class ChatAdvicePromptService {
     goalTitle: string,
     concern: string,
     mode: AdviceMode,
+    manseRyok?: FourPillarsDto,
   ): string {
     this.logger.debug(
       `Generating onboarding prompt for goal: ${goalTitle}, mode: ${mode}`,
@@ -65,6 +67,9 @@ export class ChatAdvicePromptService {
       )
       .with(AdviceMode.천재전략가, () =>
         this.generateStrategistOnboardingPrompt(goalTitle, concern),
+      )
+      .with(AdviceMode.사주, () =>
+        this.generateSajuOnboardingPrompt(goalTitle, concern, manseRyok),
       )
       .otherwise(() => {
         throw new Error(`Unknown advice mode: ${mode}`);
@@ -169,11 +174,40 @@ export class ChatAdvicePromptService {
 조언을 작성해주세요:`;
   }
 
+  private generateSajuOnboardingPrompt(
+    goalTitle: string,
+    concern: string,
+    manseRyok?: FourPillarsDto,
+  ): string {
+    const sajuInfo = this.formatSaju(manseRyok);
+
+    return `당신은 사용자의 사주팔자(만세력)를 보고 조언해주는 신비로운 AI 점술가 그로롱입니다.
+
+사용자 정보:
+- 선택한 목표: ${goalTitle}
+- 전송한 고민: ${concern}
+- 만세력(사주팔자): ${sajuInfo}
+
+위 정보를 참고해서 사용자가 목표를 향해 첫걸음을 잘 뗄 수 있도록 운세와 결합된 격려형 답변을 작성해주세요.
+
+조언 구성:
+1. 유저를 반기며 현재 운세를 한문장으로 표현 (신비로운 말투)
+2. 운세를 바탕으로 유저의 목표와 고민에 대한 따뜻한 격려와 조언 (100자 이상 200자 이내)
+3. 마지막: 반드시 한 줄을 띄우고 "이번 목표 진행에 어려움은 없었어?"라는 질문으로 마무리
+
+양식:
+- 친근하고 신비로운 반말 사용
+- 이모지 제거
+- 적절한 기호 사용
+
+조언을 작성해주세요:`;
+  }
+
   generateMorningAdvicePrompt(
     goalTitles: string[],
     recentTodos: string[],
     previousConversations: string,
-    manseRyok?: string,
+    manseRyok?: FourPillarsDto,
   ): string {
     this.logger.debug(
       `Generating morning advice prompt. Goals: ${goalTitles.length}, Todos: ${recentTodos.length}, HasManseRyok: ${!!manseRyok}`,
@@ -185,10 +219,11 @@ export class ChatAdvicePromptService {
 
     // 1. 만세력 정보가 있는 경우: 오늘의 운세 (사주 그로롱)
     if (manseRyok) {
+      const sajuInfo = this.formatSaju(manseRyok);
       const promptContext = `당신은 사용자의 사주팔자(만세력)를 보고 오늘의 운세를 기반으로 조언해주는 신비로운 AI 점술가 그로롱입니다.
 
 사용자 정보:
-- 만세력(사주팔자): ${manseRyok}
+- 만세력(사주팔자): ${sajuInfo}
 - 진행 중인 전체 목표: ${goalsList}
 - 최근 7일 투두 리스트: ${todoStatus}
 - 어제 대화 내역: ${previousConversations || '없음'}
@@ -268,6 +303,11 @@ ${contentStructure}
       return '최근 투두가 없습니다';
     }
     return todos.join(', ');
+  }
+
+  private formatSaju(manseRyok?: FourPillarsDto): string {
+    if (!manseRyok) return '정보 없음';
+    return `년주: ${manseRyok.year}, 월주: ${manseRyok.month}, 일주: ${manseRyok.day}, 시주: ${manseRyok.hour}`;
   }
 
   private generateBasicModePrompt(
@@ -370,12 +410,14 @@ ${contentStructure}
     goalTitle: string,
     concern: string,
     todosText: string,
-    manseRyok?: string,
+    manseRyok?: FourPillarsDto,
   ): string {
+    const sajuInfo = this.formatSaju(manseRyok);
+
     return `당신은 사용자의 사주팔자(만세력)를 보고 현재 운세를 기반으로 조언해주는 신비로운 AI 점술가 그로롱입니다.
 
 사용자 정보:
-- 만세력(사주팔자): ${manseRyok || '정보 없음'}
+- 만세력(사주팔자): ${sajuInfo}
 - 전송한 고민: ${concern}
 - 유저가 선택한 목표: ${goalTitle}
 - 선택한 목표의 최근 7일 투두 리스트: ${todosText}

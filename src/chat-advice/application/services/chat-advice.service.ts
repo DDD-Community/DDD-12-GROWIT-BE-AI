@@ -31,6 +31,7 @@ export class ChatAdviceService {
           request.goalTitle,
           request.concern,
           request.mode,
+          request.manseRyok,
         ),
       )
       .otherwise(() =>
