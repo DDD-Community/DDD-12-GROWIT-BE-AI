@@ -1,6 +1,5 @@
-import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { of } from 'rxjs';
+import { ForcetellerApiClient } from '../../infrastructure/forceteller-api.client';
 import { ForceTellerSajuResponse } from '../../presentation/dto/saju-response.interface';
 import { ForcetellerService } from './forceteller.service';
 
@@ -45,9 +44,9 @@ describe('ForcetellerService', () => {
       providers: [
         ForcetellerService,
         {
-          provide: HttpService,
+          provide: ForcetellerApiClient,
           useValue: {
-            post: jest.fn().mockReturnValue(of({ data: mockResponse })),
+            getSajuChart: jest.fn().mockResolvedValue(mockResponse),
           },
         },
       ],
@@ -56,8 +55,21 @@ describe('ForcetellerService', () => {
     service = module.get<ForcetellerService>(ForcetellerService);
   });
 
-  it('should extract four pillars correctly', () => {
-    const result = service.extractFourPillars(mockResponse);
+  it('should extract four pillars correctly', async () => {
+    const result = await service.getSajuFourPillars({
+      name: '홍길동',
+      gender: 'MALE',
+      calendar: 'S',
+      birthday: '1990/01/01',
+      birthtime: '12:00',
+      hmUnsure: false,
+      midnightAdjust: false,
+      year: 1990,
+      month: 1,
+      day: 1,
+      hour: 12,
+      min: 0,
+    });
 
     expect(result.year).toBe('병자(丙子)');
     expect(result.month).toBe('신축(辛丑)');

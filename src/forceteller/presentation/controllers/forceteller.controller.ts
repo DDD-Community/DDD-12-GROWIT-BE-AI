@@ -15,8 +15,6 @@ export class ForcetellerController {
   ): Promise<FourPillarsResult> {
     this.logger.log(`Received saju request for: ${profile.name}`);
 
-    const chartData = await this.forcetellerService.getSajuChart(profile);
-
-    return this.forcetellerService.extractFourPillars(chartData);
+    return this.forcetellerService.getSajuFourPillars(profile);
   }
 }

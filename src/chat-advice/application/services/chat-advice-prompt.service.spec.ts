@@ -1,4 +1,4 @@
-import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
+import { FourPillarsDto } from '@/forceteller/domain/four-pillars.dto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdviceMode } from '../../../common/enums/advice-mode.enum';
 import { ChatAdvicePromptService } from './chat-advice-prompt.service';
@@ -43,7 +43,6 @@ describe('ChatAdvicePromptService', () => {
       expect(prompt).toContain(
         '당신은 사용자의 사주팔자(만세력)를 보고 현재 운세를 기반으로 조언해주는 신비로운 AI 점술가 그로롱입니다.',
       );
-      expect(prompt).toContain(`만세력(사주팔자): 정보 없음`); // Wait, formatSaju uses the object properties, not toString
       expect(prompt).toContain(`년주: ${mockSaju.year}`);
       expect(prompt).toContain(`월주: ${mockSaju.month}`);
       expect(prompt).toContain(`유저가 선택한 목표: ${goalTitle}`);

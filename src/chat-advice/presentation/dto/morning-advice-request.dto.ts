@@ -1,6 +1,7 @@
-import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
+import { FourPillarsDto } from '@/forceteller/domain/four-pillars.dto';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -13,10 +14,12 @@ export class MorningAdviceRequestDto {
   userId: string;
 
   @IsOptional()
+  @IsArray()
   @IsString({ each: true })
   goalTitles: string[];
 
   @IsOptional()
+  @IsArray()
   @IsString({ each: true })
   recentTodos: string[];
 

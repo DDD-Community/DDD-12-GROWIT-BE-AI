@@ -1,7 +1,8 @@
 import { AdviceMode } from '@/common/enums/advice-mode.enum';
-import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
+import { FourPillarsDto } from '@/forceteller/domain/four-pillars.dto';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -43,6 +44,7 @@ export class RealtimeAdviceRequestDto {
   @ValidateIf((o) => o.mode === AdviceMode.사주)
   manseRyok?: FourPillarsDto;
 
+  @IsBoolean()
   @IsNotEmpty()
   isGoalOnboardingCompleted: boolean;
 }

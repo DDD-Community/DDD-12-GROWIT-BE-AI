@@ -13,8 +13,8 @@ export class SajuProfileDto {
   @IsNotEmpty()
   name: string;
 
-  @IsIn(['M', 'F'])
-  gender: 'M' | 'F';
+  @IsIn(['MALE', 'FEMALE'])
+  gender: 'MALE' | 'FEMALE';
 
   @IsIn(['S', 'L'])
   calendar: 'S' | 'L'; // Solar or Lunar

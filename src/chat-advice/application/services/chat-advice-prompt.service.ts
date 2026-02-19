@@ -1,5 +1,5 @@
 import { AdviceMode } from '@/common/enums/advice-mode.enum';
-import { FourPillarsDto } from '@/forceteller/presentation/dto/four-pillars.dto';
+import { FourPillarsDto } from '@/forceteller/domain/four-pillars.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { match } from 'ts-pattern';
 
